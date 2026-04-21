@@ -1,40 +1,375 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
- <meta charset="UTF-8">
- <meta name="viewport" content="width=device-width, initial-scale=1.0">
- <title>NEXUS VIP V15 · TABS</title>
- <style>
- :root { --neon: #00ff41; --danger: #ff003c; --gold: #ffea00; --bg: #050505; }
- body { background: var(--bg); color: #fff; font-family: 'Segoe UI', sans-serif; margin: 0; user-select: none; overflow-x: hidden; }
- .header-container { text-align: center; padding: 30px 10px; }
- .zigzag-name { font-size: 38px; font-weight: 900; letter-spacing: 5px; color: #fff; text-transform: uppercase; text-shadow: 2px 2px var(--danger), -2px -2px var(--neon), 0 0 20px var(--neon); animation: glitch 1.5s infinite; }
- @keyframes glitch { 0% { transform: skew(0deg); } 20% { transform: skew(-3deg); text-shadow: 2px 2px var(--neon), -2px -2px var(--danger); } 40% { transform: skew(3deg); } 100% { transform: skew(0deg); } }
- .glass-box { max-width: 400px; margin: 0 auto 20px; background: rgba(255,255,255,0.03); border: 1px solid rgba(0,255,65,0.2); border-radius: 25px; padding: 25px; backdrop-filter: blur(15px); text-align: center; }
- input { width: 100%; padding: 15px; background: rgba(0,0,0,0.6); border: 1px solid #333; border-radius: 12px; color: var(--neon); font-size: 16px; margin: 15px 0; outline: none; text-align: center; }
- .btn-main { width: 100%; padding: 15px; background: linear-gradient(45deg, var(--neon), #008f11); border: none; border-radius: 12px; color: #000; font-weight: 800; text-transform: uppercase; letter-spacing: 2px; cursor: pointer; }
- .pred-val { font-size: 55px; font-weight: 900; margin: 10px 0; text-shadow: 0 0 20px var(--neon); color: #fff; }
- .footer-branding { margin-top: 30px; padding: 15px; text-align: center; }
- .name-box { display: inline-block; padding: 10px 30px; border: 1px solid var(--neon); border-radius: 5px; color: var(--neon); font-weight: bold; letter-spacing: 3px; background: rgba(0, 255, 65, 0.05); }
- table { width: 100%; margin-top: 20px; border-collapse: collapse; font-size: 11px; }
- th { color: #888; border-bottom: 1px solid #222; padding: 8px; }
- td { padding: 10px; border-bottom: 1px solid #111; text-align: center; }
- .win { color: var(--neon); font-weight: bold; }
- .loss { color: var(--danger); font-weight: bold; }
- .hidden { display: none; }
- /* Tab Styles */
- .tab-container {
- display: flex;
- gap: 10px;
- margin: 20px 0;
- justify-content: center;
- }
- .tab-btn {
- flex: 1;
- max-width: 150px;
- padding: 12px 20px;
- background: transparent;
- border: 2px solid var(--neon);
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>POSCUS AI · SURE SHOT AI PRO | Dragon Neural Gateway</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=El+Messiri:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
+    
+    <style>
+        /* ===== original dashboard styles (kept intact) ===== */
+        :root {
+            --bg-primary: #ffffff;
+            --bg-secondary: #f8f9fa;
+            --bg-tertiary: #f1f3f5;
+            --text-primary: #0f172a;
+            --text-secondary: #475569;
+            --accent-primary: #7c3aed;
+            --accent-secondary: #a78bfa;
+            --card-border-color: #e2e8f0;
+            --shadow-color: rgba(15, 23, 42, 0.08);
+            --shadow-accent-glow: rgba(124, 58, 237, 0.15);
+            --win-color: #10b981;
+            --loss-color: #ef4444;
+            --jack-win-color: #f59e0b;
+            --pending-color: #f97316;
+            --color-win-color: #3b82f6;
+            --size-win-color: #8b5cf6;
+            --gradient-primary: linear-gradient(135deg, #7c3aed 0%, #a78bfa 100%);
+            --gradient-secondary: linear-gradient(135deg, #0ea5e9 0%, #3b82f6 100%);
+        }
+
+        * {
+            font-family: 'El Messiri', sans-serif;
+            letter-spacing: -0.01em;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            margin: 0;
+            padding: 0;
+            overflow-x: hidden;
+            min-height: 100vh;
+            background-image: 
+                radial-gradient(circle at 10% 20%, rgba(124, 58, 237, 0.05) 0%, transparent 20%),
+                radial-gradient(circle at 90% 80%, rgba(167, 139, 250, 0.05) 0%, transparent 20%);
+        }
+
+        @media (max-width: 640px) {
+            body { font-size: 14px; }
+            .navigation { width: 96%; height: 65px; bottom: 12px; }
+            .card { border-radius: 1rem; }
+        }
+
+        .card {
+            transition: all 0.3s ease;
+            background: var(--bg-primary);
+            border-radius: 1.25rem;
+            box-shadow: 0 4px 6px var(--shadow-color), 0 1px 3px rgba(0, 0, 0, 0.05);
+            border: 1px solid var(--card-border-color);
+            overflow: hidden;
+            position: relative;
+            backdrop-filter: blur(10px);
+        }
+        
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: var(--gradient-primary);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        
+        .card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 24px var(--shadow-accent-glow), 0 6px 12px var(--shadow-color);
+            border-color: rgba(124, 58, 237, 0.2);
+        }
+        
+        .card:hover::before { opacity: 1; }
+
+        .gradient-bg {
+            background: var(--gradient-primary);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .gradient-bg::after {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 1px, transparent 1px);
+            background-size: 30px 30px;
+            opacity: 0.3;
+        }
+
+        #appHeaderSvg text {
+            font-family: 'El Messiri', sans-serif;
+            text-anchor: middle;
+            dominant-baseline: middle;
+            animation: premiumStroke 6s infinite alternate;
+            stroke-width: 1;
+            stroke: var(--accent-primary);
+            font-size: clamp(60px, 8vw, 100px);
+            fill: rgba(15, 23, 42, 0);
+            font-weight: 700;
+            filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.1));
+        }
+
+        @keyframes premiumStroke {
+            0% { fill: rgba(124, 58, 237, 0); stroke-dashoffset: 25%; stroke-dasharray: 0 50%; stroke-width: 1.5; }
+            70% { fill: rgba(124, 58, 237, 0.3); stroke-dashoffset: -25%; stroke-dasharray: 50% 0; stroke-width: 0.5; }
+            100% { fill: var(--text-primary); stroke-dashoffset: -25%; stroke-dasharray: 50% 0; stroke-width: 0; }
+        }
+
+        .navigation {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 94%;
+            max-width: 420px;
+            height: 70px;
+            background: rgba(255, 255, 255, 0.98);
+            backdrop-filter: blur(20px) saturate(180%);
+            border-radius: 1.5rem;
+            box-shadow: 0 10px 40px rgba(15, 23, 42, 0.12), 0 4px 12px rgba(124, 58, 237, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.6);
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            z-index: 1000;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            padding: 0 8px;
+        }
+
+        .nav-link {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: #94a3b8;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            flex: 1;
+            height: 100%;
+            position: relative;
+            gap: 4px;
+            border-radius: 14px;
+            margin: 6px 4px;
+        }
+
+        .nav-icon-wrap {
+            width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+        }
+
+        .nav-link.active .nav-icon-wrap {
+            background: linear-gradient(135deg, #7c3aed, #a78bfa);
+            box-shadow: 0 4px 12px rgba(124, 58, 237, 0.35);
+        }
+
+        .nav-link.active {
+            color: #7c3aed;
+        }
+
+        .nav-link i {
+            font-size: 1.1rem;
+            transition: all 0.3s ease;
+        }
+
+        .nav-link.active i {
+            color: #ffffff;
+            filter: none;
+        }
+
+        .nav-link span {
+            font-size: 0.6rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.4px;
+            transition: all 0.3s ease;
+            color: #94a3b8;
+        }
+
+        .nav-link.active span {
+            color: #7c3aed;
+        }
+
+        .content-section {
+            display: none;
+            padding: 1rem;
+            padding-bottom: 100px;
+            animation: premiumFadeIn 0.4s ease-out forwards;
+            opacity: 0;
+            transform: translateY(10px);
+        }
+        .content-section.active { display: block; }
+        @keyframes premiumFadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        .history-item {
+            border-left: 5px solid var(--card-border-color);
+            margin-bottom: 1rem;
+            background: white;
+            padding: 1rem;
+            border-radius: 0.875rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            transition: all 0.2s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        @media (max-width: 640px) { .history-item { flex-direction: column; gap: 0.75rem; } }
+        .history-item.win { border-left-color: var(--win-color); background: linear-gradient(to right, rgba(16, 185, 129, 0.02), white); }
+        .history-item.loss { border-left-color: var(--loss-color); background: linear-gradient(to right, rgba(239, 68, 68, 0.02), white); }
+        .history-item.pending { border-left-color: var(--pending-color); border-left-style: dashed; background: linear-gradient(to right, rgba(249, 115, 22, 0.02), white); }
+        
+        .status-badge { font-size: 0.65rem; font-weight: 700; padding: 4px 10px; border-radius: 20px; text-transform: uppercase; letter-spacing: 0.5px; white-space: nowrap; }
+        .probability-card {
+            background: linear-gradient(145deg, #ffffff, #f8fafc);
+            border-radius: 1rem;
+            padding: 1rem;
+            margin: 0.75rem 0;
+            box-shadow: 0 4px 12px rgba(15, 23, 42, 0.05), inset 0 1px 0 rgba(255, 255, 255, 0.8);
+            border: 1px solid rgba(226, 232, 240, 0.8);
+            position: relative;
+            overflow: hidden;
+        }
+        .probability-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 4px; background: var(--gradient-primary); }
+        .probability-bar { height: 10px; border-radius: 6px; overflow: hidden; background: #e2e8f0; margin: 0.75rem 0; box-shadow: inset 0 2px 4px rgba(15, 23, 42, 0.05); }
+        .probability-fill { height: 100%; transition: width 0.6s cubic-bezier(0.34, 1.56, 0.64, 1); }
+        .method-indicator { display: inline-block; padding: 4px 10px; border-radius: 12px; font-size: 0.7rem; font-weight: 700; margin-right: 6px; margin-bottom: 6px; backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.2); }
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: rgba(15, 23, 42, 0.05); border-radius: 3px; }
+        ::-webkit-scrollbar-thumb { background: var(--accent-primary); border-radius: 3px; }
+
+        /* Additional styles for login & platform screens */
+        .database-animation { position: relative; display: inline-flex; align-items: center; justify-content: center; }
+        .data-stream { position: absolute; width: 100%; height: 100%; border-radius: 50%; background: conic-gradient(from 0deg, #7c3aed, #a78bfa, #7c3aed); animation: spinData 3s linear infinite; opacity: 0.2; }
+        @keyframes spinData { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        .pulse-db { animation: pulseDb 2s infinite ease-in-out; }
+        @keyframes pulseDb { 0% { transform: scale(1); opacity: 0.7; } 50% { transform: scale(1.05); opacity: 1; } 100% { transform: scale(1); opacity: 0.7; } }
+        .floating-dot { position: absolute; width: 6px; height: 6px; background: #a78bfa; border-radius: 50%; animation: floatData 2s infinite alternate; }
+        @keyframes floatData { 0% { transform: translateY(0px); opacity: 0; } 100% { transform: translateY(-20px); opacity: 1; } }
+        
+        .game-btn {
+            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+            background: linear-gradient(145deg, #ffffff, #f1f5f9);
+            border: 1px solid rgba(124, 58, 237, 0.2);
+        }
+        .game-btn:hover { transform: translateY(-6px) scale(1.02); box-shadow: 0 20px 30px -12px rgba(124, 58, 237, 0.35); border-color: #7c3aed; background: white; }
+    </style>
+</head>
+<body>
+
+    <!-- ==================== LOGIN SCREEN ==================== -->
+    <div id="loginScreen" class="min-h-screen flex items-center justify-center px-4 py-8" style="background: radial-gradient(circle at 10% 30%, rgba(124,58,237,0.08), transparent);">
+        <div class="w-full max-w-md">
+            <div class="text-center mb-8">
+                <div class="database-animation inline-block mb-3 relative">
+                    <div class="data-stream"></div>
+                    <i class="fas fa-database text-5xl text-purple-600 pulse-db relative z-10"></i>
+                    <div class="floating-dot" style="top: -5px; right: -8px;"></div>
+                    <div class="floating-dot" style="bottom: 0px; left: -10px; animation-delay: 0.5s;"></div>
+                </div>
+                <h1 class="text-5xl font-extrabold bg-gradient-to-r from-purple-700 via-indigo-600 to-purple-500 bg-clip-text text-transparent animate__animated animate__fadeInDown">POSCUS AI</h1>
+                <p class="text-gray-500 mt-2 text-sm flex items-center justify-center gap-2"><i class="fas fa-shield-alt text-purple-500"></i> Neural Secure Gateway <i class="fas fa-microchip text-purple-500"></i></p>
+                <div class="flex justify-center gap-3 mt-3">
+                    <i class="fas fa-chart-line text-purple-300 animate-pulse"></i>
+                    <i class="fas fa-cloud-upload-alt text-purple-400 animate-bounce" style="animation-duration: 2s;"></i>
+                    <i class="fas fa-database text-purple-500 animate-pulse"></i>
+                </div>
+            </div>
+
+            <div class="card p-6 mb-6 backdrop-blur-sm bg-white/90">
+                <div class="flex items-center gap-3 mb-3">
+                    <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-100 to-indigo-100 flex items-center justify-center"><i class="fas fa-fingerprint text-purple-600 text-xl"></i></div>
+                    <div><p class="text-xs text-gray-400 font-bold uppercase">Secure Device Identity</p><p class="text-sm font-mono font-bold text-purple-700" id="deviceIdDisplay">-- generating --</p></div>
+                </div>
+                <div class="border-t border-dashed border-gray-200 pt-3 mt-1 text-xs text-gray-500 flex items-center gap-1"><i class="fas fa-microchip"></i> Hardware anchored · TEE protected</div>
+            </div>
+
+            <div class="card p-6 shadow-2xl">
+                <div class="flex items-center gap-2 mb-5"><i class="fas fa-lock text-purple-500"></i><span class="font-bold text-gray-700">Verify Access Credentials</span></div>
+                <input type="text" id="accessPassword" placeholder="Enter your access key" class="w-full p-3 border border-purple-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-400 bg-gray-50">
+                <p id="loginMsg" class="text-xs text-gray-400 mt-2 flex items-center gap-1">Enter the key provided by admin</p>
+                <button id="loginBtn" class="w-full mt-5 gradient-bg text-white py-3 rounded-xl font-bold shadow-lg hover:shadow-xl transition-all flex items-center justify-center gap-2"><i class="fas fa-arrow-right-to-bracket"></i> Unlock Neural Engine</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== PLATFORM SELECTION SCREEN ==================== -->
+    <div id="platformScreen" class="min-h-screen px-4 py-6" style="display: none;">
+        <div class="text-center mb-8 animate__animated animate__fadeIn">
+            <div class="inline-flex items-center gap-2 bg-white/70 backdrop-blur px-5 py-2 rounded-full shadow"><i class="fas fa-gamepad text-purple-600"></i><span class="font-bold">Choose Gaming Arena</span><i class="fas fa-joystick text-purple-500"></i></div>
+            <h2 class="text-2xl font-extrabold mt-4 bg-gradient-to-r from-purple-800 to-indigo-700 bg-clip-text text-transparent">SELECT PLATFORM</h2>
+            <p class="text-gray-500 text-sm">Your predictions will be optimized for selected platform</p>
+        </div>
+        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 max-w-5xl mx-auto" id="platformGrid"></div>
+        <div class="mt-8 text-center"><button id="logoutFromPlatform" class="text-sm text-gray-400 hover:text-red-500 transition"><i class="fas fa-power-off"></i> Logout & change device</button></div>
+    </div>
+
+    <!-- ==================== MAIN DASHBOARD (original HTML content) ==================== -->
+    <div id="mainAppContainer" style="display: none;">
+        <header class="pt-6 pb-3 text-center px-2 relative">
+            <div class="absolute top-4 right-4 flex gap-2" style="display:none;">
+                <button id="switchPlatformBtn" class="text-xs bg-white/80 backdrop-blur px-3 py-1.5 rounded-full shadow border border-purple-200 text-purple-700 font-bold flex items-center gap-1"><i class="fas fa-exchange-alt"></i> Switch Platform</button>
+                <button id="logoutMainBtn" class="text-xs bg-white/80 backdrop-blur px-3 py-1.5 rounded-full shadow border border-gray-200 text-gray-600"><i class="fas fa-sign-out-alt"></i> Logout</button>
+            </div>
+            <svg id="appHeaderSvg" viewBox="0 0 800 120" class="w-full max-w-md mx-auto">
+                <text x="50%" y="50%">SURE SHOT AI PRO</text>
+            </svg>
+            <p class="text-sm text-text-secondary mt-2">Dragon Neural Engine · BIG/SMALL AI v8.0 | Platform: <span id="activePlatformLabel" class="font-bold text-purple-600">--</span></p>
+        </header>
+
+        <main class="max-w-4xl mx-auto px-2">
+            <!-- Home Section -->
+            <div id="homeSection" class="content-section active">
+                <div class="card gradient-bg p-6 text-white mb-6 animate__animated animate__fadeIn relative overflow-hidden">
+                    <div class="grid grid-cols-2 gap-4 relative z-10">
+                        <div class="period-box bg-white/20 backdrop-blur-md rounded-xl p-3 text-center">
+                            <p class="text-xs uppercase opacity-90 mb-2 tracking-wider">Current Period</p>
+                            <h2 id="displayPeriod" class="text-2xl font-bold tracking-tighter">-----</h2>
+                        </div>
+                        <div class="period-box bg-white/20 backdrop-blur-md rounded-xl p-3 text-center">
+                            <p class="text-xs uppercase opacity-90 mb-2 tracking-wider">AI Prediction</p>
+                            <h2 id="displayPrediction" class="text-2xl font-bold">ANALYZING</h2>
+                        </div>
+                    </div>
+                    <div class="mt-4 text-center relative z-10">
+                        <p class="text-xs uppercase font-bold opacity-80 mb-2 tracking-wider">Recent Numbers Analysis</p>
+                        <div id="recentNumbers" class="flex justify-center gap-2 mt-2"></div>
+                        <div id="methodInfo" class="flex flex-wrap justify-center gap-1 mt-3" style="display:none!important;"></div>
+                        <div id="trendSummary" class="mt-3 text-sm opacity-90"></div>
+                    </div>
+                </div>
+
+                <div class="card p-5 mb-5">
+                    <h3 class="font-bold text-base mb-4 flex items-center gap-2">
+                        <div class="w-9 h-9 gradient-bg rounded-xl flex items-center justify-center text-white shadow"><i class="fas fa-dragon"></i></div>
+                        <span>Dragon Pattern Matrix</span>
+                    </h3>
+                    <div id="predictionTypeCard" class="mb-4 p-3 rounded-xl bg-gradient-to-r from-purple-50 to-blue-50 border border-purple-200">
+                        <p class="text-xs text-purple-600 font-bold mb-1">ACTIVE PREDICTION MODE</p>
+                        <p id="activePredictionType" class="text-lg font-bold text-purple-700">SIZE ANALYSIS</p>
+                    </div>
+                    
+                    <div class="probability-card mb-3">
+                        <div class="probability-label flex justify-between"><span><i class="fas fa-expand-alt"></i> BIG Probability</span><span id="bigProbabilityValue" class="font-bold">0%</span></div>
+                        <div class="probability-bar"><div id="bigProbabilityBar" class="probability-fill bg-gradient-to-r from-blue-500 to-cyan-400" style="width: 0%"></div></div>
+                        <div class="probability-label flex justify-between"><span><i class="fas fa-compress-alt"></i> SMALL Probability</span><span id="smallProbabilityValue" class="font-bold">0%</span></div>
+                        <div class="probability-bar"><div id="smallProbabilityBar" class="probability-fill bg-gradient-to-r from-purple-500 to-pink-400" style="width: 0%"></div></div>
+                    </div>
+
+                    <div class="grid border: 2px solid var(--neon);
  border-radius: 40px;
  color: var(--neon);
  font-weight: 800;
