@@ -133,7 +133,7 @@
             width: 94%;
             max-width: 420px;
             height: 70px;
-            background: rgba(255, 255, 255, 0.95);
+            background: rgba(255, 255, 255, 0.98);
             backdrop-filter: blur(20px) saturate(180%);
             border-radius: 1.5rem;
             box-shadow: 0 10px 40px rgba(15, 23, 42, 0.12), 0 4px 12px rgba(124, 58, 237, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.6);
@@ -142,45 +142,66 @@
             align-items: center;
             z-index: 1000;
             border: 1px solid rgba(255, 255, 255, 0.3);
+            padding: 0 8px;
         }
 
         .nav-link {
             display: flex;
             flex-direction: column;
             align-items: center;
-            color: var(--text-secondary);
+            justify-content: center;
+            color: #94a3b8;
             text-decoration: none;
             transition: all 0.3s ease;
-            width: 25%;
+            flex: 1;
+            height: 100%;
             position: relative;
-            padding: 12px 0;
-            border-radius: 12px;
+            gap: 4px;
+            border-radius: 14px;
+            margin: 6px 4px;
         }
 
-        .nav-link::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 50%;
-            transform: translateX(-50%) scaleX(0);
+        .nav-icon-wrap {
             width: 36px;
-            height: 3px;
-            background: var(--gradient-primary);
-            border-radius: 0 0 4px 4px;
-            transition: transform 0.3s ease;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+        }
+
+        .nav-link.active .nav-icon-wrap {
+            background: linear-gradient(135deg, #7c3aed, #a78bfa);
+            box-shadow: 0 4px 12px rgba(124, 58, 237, 0.35);
         }
 
         .nav-link.active {
-            color: var(--accent-primary);
-            background: rgba(124, 58, 237, 0.05);
+            color: #7c3aed;
         }
 
-        .nav-link.active::before { transform: translateX(-50%) scaleX(1); }
+        .nav-link i {
+            font-size: 1.1rem;
+            transition: all 0.3s ease;
+        }
 
-        .nav-link i { font-size: 1.4rem; margin-bottom: 4px; transition: all 0.3s ease; }
-        .nav-link.active i { transform: translateY(-2px); filter: drop-shadow(0 4px 8px rgba(124, 58, 237, 0.3)); }
-        .nav-link span { font-size: 0.7rem; font-weight: 600; text-transform: uppercase; opacity: 0; transform: translateY(8px); transition: all 0.3s ease; letter-spacing: 0.5px; }
-        .nav-link.active span { opacity: 1; transform: translateY(0); }
+        .nav-link.active i {
+            color: #ffffff;
+            filter: none;
+        }
+
+        .nav-link span {
+            font-size: 0.6rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.4px;
+            transition: all 0.3s ease;
+            color: #94a3b8;
+        }
+
+        .nav-link.active span {
+            color: #7c3aed;
+        }
 
         .content-section {
             display: none;
@@ -326,7 +347,7 @@
                     <div class="mt-4 text-center relative z-10">
                         <p class="text-xs uppercase font-bold opacity-80 mb-2 tracking-wider">Recent Numbers Analysis</p>
                         <div id="recentNumbers" class="flex justify-center gap-2 mt-2"></div>
-                        <div id="methodInfo" class="flex flex-wrap justify-center gap-1 mt-3"></div>
+                        <div id="methodInfo" class="flex flex-wrap justify-center gap-1 mt-3" style="display:none!important;"></div>
                         <div id="trendSummary" class="mt-3 text-sm opacity-90"></div>
                     </div>
                 </div>
@@ -404,10 +425,22 @@
         </main>
 
         <nav class="navigation">
-            <a href="#" class="nav-link active" data-section="homeSection"><i class="fas fa-th-large"></i><span>Dashboard</span></a>
-            <a href="#" class="nav-link" data-section="historySection"><i class="fas fa-history"></i><span>History</span></a>
-            <a href="#" class="nav-link" data-section="statsSection"><i class="fas fa-chart-line"></i><span>Analytics</span></a>
-            <a href="#" class="nav-link" data-section="aboutSection"><i class="fas fa-info-circle"></i><span>About</span></a>
+            <a href="#" class="nav-link active" data-section="homeSection">
+                <div class="nav-icon-wrap"><i class="fas fa-th-large"></i></div>
+                <span>Dashboard</span>
+            </a>
+            <a href="#" class="nav-link" data-section="historySection">
+                <div class="nav-icon-wrap"><i class="fas fa-history"></i></div>
+                <span>History</span>
+            </a>
+            <a href="#" class="nav-link" data-section="statsSection">
+                <div class="nav-icon-wrap"><i class="fas fa-chart-line"></i></div>
+                <span>Analytics</span>
+            </a>
+            <a href="#" class="nav-link" data-section="aboutSection">
+                <div class="nav-icon-wrap"><i class="fas fa-info-circle"></i></div>
+                <span>About</span>
+            </a>
         </nav>
     </div>
 
@@ -474,7 +507,7 @@
         }
 
         // ==================== LOGOUT ====================
-        function logoutFull() {
+        function logoutFull(reason) {
             localStorage.removeItem('poscus_auth');
             localStorage.removeItem('poscus_selected_platform');
             localStorage.removeItem('poscus_active_key');
@@ -484,7 +517,42 @@
             document.getElementById('accessPassword').value = '';
             // stop intervals to avoid background updates
             if (window.fetchInterval) clearInterval(window.fetchInterval);
+            if (window.keyCheckInterval) clearInterval(window.keyCheckInterval);
             window.mainAppInitialized = false;
+            // Show reason if admin deleted key
+            if (reason === 'key_deleted') {
+                const loginMsg = document.getElementById('loginMsg');
+                if (loginMsg) {
+                    loginMsg.innerHTML = '<span class="text-red-500">🚫 Your access key has been revoked by admin. Contact support.</span>';
+                }
+            }
+        }
+
+        // ==================== BACKGROUND KEY VALIDATOR ====================
+        // Checks every 10 seconds if user's key is still active in Firebase
+        // If key is deleted or deactivated → instant logout
+        async function validateKeyInBackground() {
+            const activeKey = localStorage.getItem('poscus_active_key');
+            if (!activeKey || !isLoggedIn) return;
+            try {
+                const res = await fetch(`${DB_URL}/keys/${encodeURIComponent(activeKey)}.json`);
+                const data = await res.json();
+                // Key deleted (null) or deactivated (active !== true) → force logout
+                if (!data || data.active !== true) {
+                    logoutFull('key_deleted');
+                }
+            } catch (e) {
+                // Network error — do NOT logout (be tolerant of temporary failures)
+                console.warn("Key validation check failed (network):", e);
+            }
+        }
+
+        function startKeyValidation() {
+            // Clear any existing interval first
+            if (window.keyCheckInterval) clearInterval(window.keyCheckInterval);
+            // Validate immediately, then every 10 seconds
+            validateKeyInBackground();
+            window.keyCheckInterval = setInterval(validateKeyInBackground, 10000);
         }
         document.getElementById('logoutFromPlatform')?.addEventListener('click', logoutFull);
         document.getElementById('logoutMainBtn')?.addEventListener('click', logoutFull);
@@ -552,6 +620,7 @@
                 localStorage.setItem('poscus_auth', 'true');
                 localStorage.setItem('poscus_active_key', keyInput);
                 isLoggedIn = true;
+                startKeyValidation(); // ← Begin background key monitoring
                 showPlatformSelection();
 
             } catch (e) {
@@ -561,13 +630,10 @@
             }
         });
 
-        // ==================== PREDICTION ENGINE v15.0 — Dragon Ultra 12-Signal ====================
+        // ==================== PREDICTION ENGINE v14.0 — High Accuracy ====================
         const RULE1 = ['BIG','SMALL','SMALL','BIG','SMALL','BIG'];
         const RULE2 = ['BIG','BIG','SMALL','SMALL'];
-        const RULE3 = ['BIG','SMALL','BIG','BIG','SMALL','SMALL'];   // Dragon-6 cycle
-        const RULE4 = ['SMALL','BIG','SMALL','BIG','BIG','SMALL'];   // Reverse Dragon-6
 
-        // ── Helpers ──────────────────────────────────────────────────────────
         function matchCycle(seqOldFirst, pattern, minLen) {
             const pLen = pattern.length, n = seqOldFirst.length;
             if (n < minLen) return null;
@@ -587,210 +653,127 @@
             return { val: seq[0], len };
         }
 
-        function isAlternating(seq, minLen = 4) {
-            if (seq.length < minLen) return false;
-            for (let i = 0; i < minLen - 1; i++) if (seq[i] === seq[i+1]) return false;
-            return true;
+        function isAlternating(seq) {
+            const s = seq.slice(0, 6);
+            let alt = true;
+            for (let i = 1; i < s.length; i++) { if (s[i] === s[i-1]) { alt = false; break; } }
+            return s.length >= 4 && alt;
         }
 
-        // S1: Sandwich — B S B → next B  /  S B S → next S
-        function sandwichSignal(seq) {
-            if (seq.length < 3) return null;
-            // newest-first: seq[0]=newest
-            if (seq[0] === seq[2] && seq[0] !== seq[1]) return { pred: seq[0], weight: 3, name: '🥪 Sandwich' };
-            return null;
+        // Count consecutive losses from history to apply anti-loss correction
+        function getRecentLossStreak() {
+            const recent = gameHistory.filter(i => i.status !== 'PENDING').slice(0, 5);
+            let losses = 0;
+            for (const r of recent) { if (r.status === 'LOSS') losses++; else break; }
+            return losses;
         }
 
-        // S2: Mirror — last 4 mirrors previous 4 → predict next in old sequence
-        function mirrorSignal(seq) {
-            if (seq.length < 9) return null;
-            // newest-first
-            const block1 = seq.slice(0,4);   // newest 4
-            const block2 = seq.slice(4,8);   // older 4
-            let match = true;
-            for (let i = 0; i < 4; i++) if (block1[i] !== block2[i]) { match = false; break; }
-            if (match) return { pred: seq[8], weight: 4, name: '🪞 Mirror' };
-            return null;
-        }
-
-        // S3: Zigzag — perfect alternating 4+ → predict opposite of latest
-        function zigzagSignal(seq) {
-            if (!isAlternating(seq, 4)) return null;
-            const pred = seq[0] === 'BIG' ? 'SMALL' : 'BIG';
-            const strength = isAlternating(seq, 6) ? 4 : 3;
-            return { pred, weight: strength, name: `⚡ ZigZag(${Math.min(seq.length,6)})` };
-        }
-
-        // S4: Nani Reversal — after 2 losses on same side, flip
-        function naniSignal(history) {
-            if (history.length < 3) return null;
-            const recent = history.slice(0, 3).filter(h => h.status !== 'PENDING');
-            if (recent.length < 2) return null;
-            if (recent[0].status === 'LOSS' && recent[1].status === 'LOSS' &&
-                recent[0].predictedSize === recent[1].predictedSize) {
-                const flip = recent[0].predictedSize === 'BIG' ? 'SMALL' : 'BIG';
-                return { pred: flip, weight: 4, name: '🔄 Nani Flip' };
-            }
-            return null;
-        }
-
-        // S5: Streak reversal with scaled weight
-        function streakSignal(seq) {
-            const stk = getStreak(seq);
-            if (stk.len < 3) return { streakInfo: stk, signal: null };
-            const flip = stk.val === 'BIG' ? 'SMALL' : 'BIG';
-            const wt = stk.len >= 6 ? 7 : stk.len === 5 ? 6 : stk.len === 4 ? 5 : 3;
-            return { streakInfo: stk, signal: { pred: flip, weight: wt, name: `🔥 Streak×${stk.len}` } };
-        }
-
-        // S6: Pair cycle (AABB) → after completing 2nd of pair, switch
-        function pairSignal(seq) {
-            if (seq.length < 4) return null;
-            // AABB pattern: seq[0]==seq[1], seq[2]==seq[3], seq[0]!=seq[2]
-            if (seq[0]===seq[1] && seq[2]===seq[3] && seq[0]!==seq[2]) {
-                return { pred: seq[0], weight: 3, name: '🔢 AABB Continue' };
-            }
-            // Just completed a pair (2 same, then different) → new pair starts
-            if (seq[0]===seq[1] && seq[1]!==seq[2]) {
-                return { pred: seq[2], weight: 2, name: '🔢 Pair Switch' };
-            }
-            return null;
-        }
-
-        // S7: Multi-window frequency
-        function freqSignal(seq) {
-            const signals = [];
-            [[3,2],[5,2],[8,1],[12,1]].forEach(([w,wt]) => {
-                if (seq.length < w) return;
-                const big = seq.slice(0,w).filter(s=>s==='BIG').length;
-                const ratio = big/w;
-                if (ratio >= 0.75) signals.push({ pred:'SMALL', weight:wt, name:`📊 Freq-${w}` });
-                else if (ratio <= 0.25) signals.push({ pred:'BIG', weight:wt, name:`📊 Freq-${w}` });
-            });
-            return signals;
-        }
-
-        // S8: Momentum — last 3 vs last 3 before that
-        function momentumSignal(seq) {
-            if (seq.length < 6) return null;
-            const recent3big = seq.slice(0,3).filter(s=>s==='BIG').length;
-            const older3big  = seq.slice(3,6).filter(s=>s==='BIG').length;
-            const delta = recent3big - older3big;
-            if (delta >= 2) return { pred:'BIG',   weight:2, name:'📈 Momentum↑' };
-            if (delta <= -2)return { pred:'SMALL', weight:2, name:'📉 Momentum↓' };
-            return null;
-        }
-
-        // S9: Cycle rules (extended)
-        function cycleSignal(seq) {
-            const of = [...seq].reverse();
-            const len = of.length;
-            const results = [];
-            // Rule1
-            let r1 = null;
-            for (let w = Math.min(len, 6); w >= 4; w--) { r1 = matchCycle(of.slice(len-w), RULE1, 4); if(r1) break; }
-            if (r1) results.push({ pred: r1.next, weight: 3, name: `🎯 R1(${r1.matchLen})`, rule: r1 });
-            // Rule2
-            const r2 = len >= 4 ? matchCycle(of.slice(len-4), RULE2, 4) : null;
-            if (r2) results.push({ pred: r2.next, weight: 3, name: `🎯 R2(${r2.matchLen})`, rule: r2 });
-            // Rule3 (Dragon-6)
-            let r3 = null;
-            for (let w = Math.min(len, 6); w >= 4; w--) { r3 = matchCycle(of.slice(len-w), RULE3, 4); if(r3) break; }
-            if (r3) results.push({ pred: r3.next, weight: 3, name: `🐉 D6(${r3.matchLen})` });
-            // Rule4
-            let r4 = null;
-            for (let w = Math.min(len, 6); w >= 4; w--) { r4 = matchCycle(of.slice(len-w), RULE4, 4); if(r4) break; }
-            if (r4) results.push({ pred: r4.next, weight: 3, name: `🐉 RD6(${r4.matchLen})` });
-            return { results, r1, r2 };
-        }
-
-        // S10: Double-confirm boost — if 3+ independent signals agree, bonus weight
-        function doubleConfirmBoost(votes) {
-            const diff = Math.abs(votes.BIG - votes.SMALL);
-            if (diff >= 8) return 3;
-            if (diff >= 5) return 2;
-            return 0;
-        }
-
-        // ── Main Engine ───────────────────────────────────────────────────────
-        function dragonScoreEngine(seq, history = []) {
+        function dragonScoreEngine(seq) {
             if (!seq || seq.length < 3) return null;
+            const of = [...seq].reverse(); // oldest first
+            const len = of.length;
+            const patterns = {};
             const votes = { BIG: 0, SMALL: 0 };
-            const signalLog = [];
+            let signalCount = 0;
 
-            function cast(signal) {
-                if (!signal) return;
-                votes[signal.pred] += signal.weight;
-                signalLog.push(signal.name);
+            // ── Signal 1: Streak reversal (weighted by streak length) ──
+            const stk = getStreak(seq);
+            patterns.streak = stk;
+            if (stk.len >= 6)      { const r = stk.val==='BIG'?'SMALL':'BIG'; votes[r] += 8; signalCount++; }
+            else if (stk.len === 5){ const r = stk.val==='BIG'?'SMALL':'BIG'; votes[r] += 7; signalCount++; }
+            else if (stk.len === 4){ const r = stk.val==='BIG'?'SMALL':'BIG'; votes[r] += 6; signalCount++; }
+            else if (stk.len === 3){ const r = stk.val==='BIG'?'SMALL':'BIG'; votes[r] += 4; signalCount++; }
+            else if (stk.len === 2){ const r = stk.val==='BIG'?'SMALL':'BIG'; votes[r] += 1; signalCount++; }
+
+            // ── Signal 2: Rule 1 cycle match (min 4) ──
+            let r1 = null;
+            for (let w = Math.min(len, 6); w >= 4; w--) {
+                r1 = matchCycle(of.slice(len - w), RULE1, 4);
+                if (r1) break;
+            }
+            if (r1) { votes[r1.next] += 4; signalCount++; patterns.rule1 = r1; }
+
+            // ── Signal 3: Rule 2 pair cycle (BBSS) ──
+            const r2 = len >= 4 ? matchCycle(of.slice(len - 4), RULE2, 4) : null;
+            if (r2) { votes[r2.next] += 4; signalCount++; patterns.rule2 = r2; }
+
+            // ── Signal 4: Alternating pattern (BSBSBS) → continue alternating ──
+            if (isAlternating(seq)) {
+                const next = seq[0] === 'BIG' ? 'SMALL' : 'BIG';
+                votes[next] += 5; signalCount++;
+                patterns.alt = true;
             }
 
-            // S1 Sandwich
-            cast(sandwichSignal(seq));
-
-            // S2 Mirror
-            cast(mirrorSignal(seq));
-
-            // S3 ZigZag
-            cast(zigzagSignal(seq));
-
-            // S4 Nani (needs history)
-            cast(naniSignal(history));
-
-            // S5 Streak
-            const { streakInfo, signal: stkSig } = streakSignal(seq);
-            cast(stkSig);
-
-            // S6 Pair
-            cast(pairSignal(seq));
-
-            // S7 Multi-window freq
-            freqSignal(seq).forEach(cast);
-
-            // S8 Momentum
-            cast(momentumSignal(seq));
-
-            // S9 Cycle rules
-            const { results: cycleResults, r1, r2 } = cycleSignal(seq);
-            cycleResults.forEach(cast);
-
-            // S10 Double-confirm boost
-            const boost = doubleConfirmBoost(votes);
-            if (boost > 0) {
-                const leader = votes.BIG >= votes.SMALL ? 'BIG' : 'SMALL';
-                votes[leader] += boost;
-                signalLog.push(`💎 Confirm+${boost}`);
+            // ── Signal 5: Pair switch (AABB → after 2nd, switch) ──
+            if (seq.length >= 3 && seq[0] === seq[1] && seq[1] !== seq[2]) {
+                votes[seq[2]] += 3; signalCount++;
+                patterns.pair = true;
             }
 
-            // Fallback if no votes
-            if (votes.BIG === 0 && votes.SMALL === 0) {
+            // ── RULE 4: 4+ consecutive BIG → strong SMALL reversal ──
+            const bigStreakLen = (() => { let c = 0; for (const v of seq) { if (v === 'BIG') c++; else break; } return c; })();
+            if (bigStreakLen >= 4) {
+                votes['SMALL'] += 7; signalCount++;
+                patterns.rule4 = { streakLen: bigStreakLen };
+            }
+
+            // ── RULE 5: 4+ consecutive SMALL → strong BIG reversal ──
+            const smallStreakLen = (() => { let c = 0; for (const v of seq) { if (v === 'SMALL') c++; else break; } return c; })();
+            if (smallStreakLen >= 4) {
+                votes['BIG'] += 7; signalCount++;
+                patterns.rule5 = { streakLen: smallStreakLen };
+            }
+
+            // ── Signal 6: Last 8 frequency bias ──
+            const last8 = seq.slice(0, 8);
+            const bigCount8  = last8.filter(s => s === 'BIG').length;
+            const smCount8   = last8.length - bigCount8;
+            if (bigCount8 >= 6)      { votes['SMALL'] += 3; signalCount++; }
+            else if (smCount8 >= 6)  { votes['BIG']   += 3; signalCount++; }
+            else if (bigCount8 >= 5) { votes['SMALL'] += 1; }
+            else if (smCount8 >= 5)  { votes['BIG']   += 1; }
+
+            // ── Signal 7: Anti-consecutive-loss correction ──
+            // If last 2+ predictions were wrong, boost opposite of current weak leader
+            const lossStrk = getRecentLossStreak();
+            if (lossStrk >= 2) {
+                // Find what we've been predicting wrong — boost opposite strongly
+                const recentPreds = gameHistory.filter(i => i.status === 'LOSS').slice(0, lossStrk);
+                if (recentPreds.length >= 2) {
+                    const wrongPred = recentPreds[0].predictedSize;
+                    const correction = wrongPred === 'BIG' ? 'SMALL' : 'BIG';
+                    const boost = lossStrk >= 3 ? 5 : 3;
+                    votes[correction] += boost;
+                    signalCount++;
+                    patterns.antiLoss = { lossStrk, correction };
+                }
+            }
+
+            // ── Fallback: no signals ──
+            if (signalCount === 0) {
+                // Slight bias toward opposite of last result
                 votes[seq[0] === 'BIG' ? 'SMALL' : 'BIG'] += 1;
-                signalLog.push('↩ Fallback');
             }
 
-            const totalVotes = votes.BIG + votes.SMALL;
+            const totalVotes = votes.BIG + votes.SMALL || 1;
             const prediction = votes.BIG >= votes.SMALL ? 'BIG' : 'SMALL';
             const dominance  = Math.max(votes.BIG, votes.SMALL) / totalVotes;
-            const signalCount = signalLog.length;
-            const confidence = Math.min(91, Math.round(50 + dominance * 38 + Math.min(signalCount, 6) * 1.5));
+            // Confidence: more conservative — avoids overconfident wrong calls
+            const rawConf    = Math.round(50 + dominance * 40 + Math.min(signalCount, 5) * 1.5);
+            const confidence = Math.min(88, Math.max(55, rawConf));
             const bigProb    = Math.round((votes.BIG / totalVotes) * 100);
 
-            const patterns = {
-                streak: streakInfo,
-                rule1: r1, rule2: r2,
-                source: signalLog[0] || 'MULTI',
-                dominantTrend: prediction,
-                trendStrength: dominance,
-                signalLog
-            };
+            patterns.dominantTrend = prediction;
+            patterns.trendStrength = confidence / 100;
+            patterns.source        = r1 ? 'RULE1' : r2 ? 'RULE2' : patterns.rule4 ? 'RULE4' : patterns.rule5 ? 'RULE5' : stk.len >= 3 ? 'STREAK' : isAlternating(seq) ? 'ALT' : 'MULTI';
 
             return {
                 prediction, confidence,
-                bigProb  : Math.max(12, Math.min(88, bigProb)),
-                smallProb: 100 - Math.max(12, Math.min(88, bigProb)),
-                scoreDiff: +((votes[prediction] - votes[prediction==='BIG'?'SMALL':'BIG'])).toFixed(1),
+                bigProb  : Math.max(15, Math.min(85, bigProb)),
+                smallProb: 100 - Math.max(15, Math.min(85, bigProb)),
+                scoreDiff: +((confidence - 50) / 5).toFixed(1),
                 scores   : { BIG: votes.BIG, SMALL: votes.SMALL },
-                patterns,
-                signalCount
+                patterns
             };
         }
 
@@ -847,7 +830,7 @@
 
                 if (nextIssue !== lockedPeriod) {
                     // New period — compute & lock prediction
-                    const pred = dragonScoreEngine(seq, gameHistory);
+                    const pred = dragonScoreEngine(seq);
                     if (pred) {
                         lockedPeriod = nextIssue;
                         lockedPred   = pred;
@@ -881,14 +864,15 @@
             let patternStrengthVal = predictionResult.scoreDiff > 6 ? "HIGH" : predictionResult.scoreDiff > 3 ? "MEDIUM" : "LOW";
             document.getElementById('patternStrengthLabel').innerText = patternStrengthVal;
             const patterns = predictionResult.patterns;
-            // ⚠️ Spread copy — never mutate the locked signalLog array
-            const patternList = [...(predictionResult.patterns.signalLog || [])];
-            // Fallback labels if engine returned no signals
-            if (!patternList.length) {
-                if (patterns.rule1 && patterns.rule1.matchLen >= 4) patternList.push(`🎯 R1(${patterns.rule1.matchLen})`);
-                if (patterns.streak && patterns.streak.len >= 2) patternList.push(`🔥 Streak×${patterns.streak.len}`);
-                patternList.push('↩ Fallback');
-            }
+            const patternList = [];
+            if (patterns.rule1 && patterns.rule1.matchLen >= 4) patternList.push(`🎯 Pattern Match (${patterns.rule1.matchLen}/6)`);
+            if (patterns.rule2 && patterns.rule2.matchLen >= 4) patternList.push(`🔢 Pair Cycle (${patterns.rule2.matchLen}/4)`);
+            if (patterns.streak && patterns.streak.len >= 2) patternList.push(`🔥 ${patterns.streak.len}x ${patterns.streak.val}${patterns.streak.len >= 4 ? ' → FLIP' : ''}`);
+            if (patterns.rule4) patternList.push(`🔴 Rule 4: ${patterns.rule4.streakLen}x BIG → SMALL Expected`);
+            if (patterns.rule5) patternList.push(`🔵 Rule 5: ${patterns.rule5.streakLen}x SMALL → BIG Expected`);
+            if (patterns.source === 'ALT')  patternList.push(`⚡ Alternating Detected`);
+            if (patterns.source === 'PAIR') patternList.push(`🔄 Pair Switch`);
+            if (patterns.dominantTrend) patternList.push(`📈 Trend: ${patterns.dominantTrend} (${Math.round(patterns.trendStrength*100)}%)`);
             document.getElementById('methodInfo').innerHTML = patternList.map(p => `<span class="method-indicator bg-gradient-to-r from-purple-700 to-indigo-600 text-white text-xs">${p}</span>`).join('');
             document.getElementById('trendSummary').innerHTML = `<div class="bg-gradient-to-r from-purple-50 to-blue-50 p-2 rounded-lg text-xs font-bold" style="color:#000000;">🔥 Dragon Score: BIG ${predictionResult.scores.BIG} | SMALL ${predictionResult.scores.SMALL} • Edge ${predictionResult.scoreDiff} pts</div>`;
             document.getElementById('modelPerformance').innerHTML = `<div class="flex justify-between items-center p-2 bg-gray-50 rounded-lg"><span class="text-xs font-bold">BIG Accuracy</span><span class="text-xs font-bold text-green-600">${getAccuracy('BIG')}%</span></div><div class="flex justify-between items-center p-2 bg-gray-50 rounded-lg"><span class="text-xs font-bold">SMALL Accuracy</span><span class="text-xs font-bold text-blue-600">${getAccuracy('SMALL')}%</span></div>`;
@@ -954,8 +938,8 @@
         }
 
         // Initial route based on saved state
-        if (isLoggedIn && selectedPlatform) showMainApp();
-        else if (isLoggedIn) showPlatformSelection();
+        if (isLoggedIn && selectedPlatform) { startKeyValidation(); showMainApp(); }
+        else if (isLoggedIn) { startKeyValidation(); showPlatformSelection(); }
         else showLogin();
     </script>
 </body>
