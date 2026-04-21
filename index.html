@@ -1,843 +1,508 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>POSCUS AI · SURE SHOT AI PRO | Dragon Neural Gateway</title>
-    
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=El+Messiri:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
-    
-    <style>
-        /* ===== original dashboard styles (kept intact) ===== */
-        :root {
-            --bg-primary: #ffffff;
-            --bg-secondary: #f8f9fa;
-            --bg-tertiary: #f1f3f5;
-            --text-primary: #0f172a;
-            --text-secondary: #475569;
-            --accent-primary: #7c3aed;
-            --accent-secondary: #a78bfa;
-            --card-border-color: #e2e8f0;
-            --shadow-color: rgba(15, 23, 42, 0.08);
-            --shadow-accent-glow: rgba(124, 58, 237, 0.15);
-            --win-color: #10b981;
-            --loss-color: #ef4444;
-            --jack-win-color: #f59e0b;
-            --pending-color: #f97316;
-            --color-win-color: #3b82f6;
-            --size-win-color: #8b5cf6;
-            --gradient-primary: linear-gradient(135deg, #7c3aed 0%, #a78bfa 100%);
-            --gradient-secondary: linear-gradient(135deg, #0ea5e9 0%, #3b82f6 100%);
-        }
-
-        * {
-            font-family: 'El Messiri', sans-serif;
-            letter-spacing: -0.01em;
-            -webkit-tap-highlight-color: transparent;
-        }
-
-        body {
-            background: var(--bg-secondary);
-            color: var(--text-primary);
-            margin: 0;
-            padding: 0;
-            overflow-x: hidden;
-            min-height: 100vh;
-            background-image: 
-                radial-gradient(circle at 10% 20%, rgba(124, 58, 237, 0.05) 0%, transparent 20%),
-                radial-gradient(circle at 90% 80%, rgba(167, 139, 250, 0.05) 0%, transparent 20%);
-        }
-
-        @media (max-width: 640px) {
-            body { font-size: 14px; }
-            .navigation { width: 96%; height: 65px; bottom: 12px; }
-            .card { border-radius: 1rem; }
-        }
-
-        .card {
-            transition: all 0.3s ease;
-            background: var(--bg-primary);
-            border-radius: 1.25rem;
-            box-shadow: 0 4px 6px var(--shadow-color), 0 1px 3px rgba(0, 0, 0, 0.05);
-            border: 1px solid var(--card-border-color);
-            overflow: hidden;
-            position: relative;
-            backdrop-filter: blur(10px);
-        }
-        
-        .card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 4px;
-            background: var(--gradient-primary);
-            opacity: 0;
-            transition: opacity 0.3s ease;
-        }
-        
-        .card:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 12px 24px var(--shadow-accent-glow), 0 6px 12px var(--shadow-color);
-            border-color: rgba(124, 58, 237, 0.2);
-        }
-        
-        .card:hover::before { opacity: 1; }
-
-        .gradient-bg {
-            background: var(--gradient-primary);
-            position: relative;
-            overflow: hidden;
-        }
-
-        .gradient-bg::after {
-            content: '';
-            position: absolute;
-            top: -50%;
-            left: -50%;
-            width: 200%;
-            height: 200%;
-            background: radial-gradient(circle, rgba(255,255,255,0.1) 1px, transparent 1px);
-            background-size: 30px 30px;
-            opacity: 0.3;
-        }
-
-        #appHeaderSvg text {
-            font-family: 'El Messiri', sans-serif;
-            text-anchor: middle;
-            dominant-baseline: middle;
-            animation: premiumStroke 6s infinite alternate;
-            stroke-width: 1;
-            stroke: var(--accent-primary);
-            font-size: clamp(60px, 8vw, 100px);
-            fill: rgba(15, 23, 42, 0);
-            font-weight: 700;
-            filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.1));
-        }
-
-        @keyframes premiumStroke {
-            0% { fill: rgba(124, 58, 237, 0); stroke-dashoffset: 25%; stroke-dasharray: 0 50%; stroke-width: 1.5; }
-            70% { fill: rgba(124, 58, 237, 0.3); stroke-dashoffset: -25%; stroke-dasharray: 50% 0; stroke-width: 0.5; }
-            100% { fill: var(--text-primary); stroke-dashoffset: -25%; stroke-dasharray: 50% 0; stroke-width: 0; }
-        }
-
-        .navigation {
-            position: fixed;
-            bottom: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 94%;
-            max-width: 420px;
-            height: 70px;
-            background: rgba(255, 255, 255, 0.98);
-            backdrop-filter: blur(20px) saturate(180%);
-            border-radius: 1.5rem;
-            box-shadow: 0 10px 40px rgba(15, 23, 42, 0.12), 0 4px 12px rgba(124, 58, 237, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.6);
-            display: flex;
-            justify-content: space-around;
-            align-items: center;
-            z-index: 1000;
-            border: 1px solid rgba(255, 255, 255, 0.3);
-            padding: 0 8px;
-        }
-
-        .nav-link {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            color: #94a3b8;
-            text-decoration: none;
-            transition: all 0.3s ease;
-            flex: 1;
-            height: 100%;
-            position: relative;
-            gap: 4px;
-            border-radius: 14px;
-            margin: 6px 4px;
-        }
-
-        .nav-icon-wrap {
-            width: 36px;
-            height: 36px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 10px;
-            transition: all 0.3s ease;
-        }
-
-        .nav-link.active .nav-icon-wrap {
-            background: linear-gradient(135deg, #7c3aed, #a78bfa);
-            box-shadow: 0 4px 12px rgba(124, 58, 237, 0.35);
-        }
-
-        .nav-link.active {
-            color: #7c3aed;
-        }
-
-        .nav-link i {
-            font-size: 1.1rem;
-            transition: all 0.3s ease;
-        }
-
-        .nav-link.active i {
-            color: #ffffff;
-            filter: none;
-        }
-
-        .nav-link span {
-            font-size: 0.6rem;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 0.4px;
-            transition: all 0.3s ease;
-            color: #94a3b8;
-        }
-
-        .nav-link.active span {
-            color: #7c3aed;
-        }
-
-        .content-section {
-            display: none;
-            padding: 1rem;
-            padding-bottom: 100px;
-            animation: premiumFadeIn 0.4s ease-out forwards;
-            opacity: 0;
-            transform: translateY(10px);
-        }
-        .content-section.active { display: block; }
-        @keyframes premiumFadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-
-        .history-item {
-            border-left: 5px solid var(--card-border-color);
-            margin-bottom: 1rem;
-            background: white;
-            padding: 1rem;
-            border-radius: 0.875rem;
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            transition: all 0.2s ease;
-            position: relative;
-            overflow: hidden;
-        }
-        @media (max-width: 640px) { .history-item { flex-direction: column; gap: 0.75rem; } }
-        .history-item.win { border-left-color: var(--win-color); background: linear-gradient(to right, rgba(16, 185, 129, 0.02), white); }
-        .history-item.loss { border-left-color: var(--loss-color); background: linear-gradient(to right, rgba(239, 68, 68, 0.02), white); }
-        .history-item.pending { border-left-color: var(--pending-color); border-left-style: dashed; background: linear-gradient(to right, rgba(249, 115, 22, 0.02), white); }
-        
-        .status-badge { font-size: 0.65rem; font-weight: 700; padding: 4px 10px; border-radius: 20px; text-transform: uppercase; letter-spacing: 0.5px; white-space: nowrap; }
-        .probability-card {
-            background: linear-gradient(145deg, #ffffff, #f8fafc);
-            border-radius: 1rem;
-            padding: 1rem;
-            margin: 0.75rem 0;
-            box-shadow: 0 4px 12px rgba(15, 23, 42, 0.05), inset 0 1px 0 rgba(255, 255, 255, 0.8);
-            border: 1px solid rgba(226, 232, 240, 0.8);
-            position: relative;
-            overflow: hidden;
-        }
-        .probability-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 4px; background: var(--gradient-primary); }
-        .probability-bar { height: 10px; border-radius: 6px; overflow: hidden; background: #e2e8f0; margin: 0.75rem 0; box-shadow: inset 0 2px 4px rgba(15, 23, 42, 0.05); }
-        .probability-fill { height: 100%; transition: width 0.6s cubic-bezier(0.34, 1.56, 0.64, 1); }
-        .method-indicator { display: inline-block; padding: 4px 10px; border-radius: 12px; font-size: 0.7rem; font-weight: 700; margin-right: 6px; margin-bottom: 6px; backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.2); }
-        ::-webkit-scrollbar { width: 6px; }
-        ::-webkit-scrollbar-track { background: rgba(15, 23, 42, 0.05); border-radius: 3px; }
-        ::-webkit-scrollbar-thumb { background: var(--accent-primary); border-radius: 3px; }
-
-        /* Additional styles for login & platform screens */
-        .database-animation { position: relative; display: inline-flex; align-items: center; justify-content: center; }
-        .data-stream { position: absolute; width: 100%; height: 100%; border-radius: 50%; background: conic-gradient(from 0deg, #7c3aed, #a78bfa, #7c3aed); animation: spinData 3s linear infinite; opacity: 0.2; }
-        @keyframes spinData { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-        .pulse-db { animation: pulseDb 2s infinite ease-in-out; }
-        @keyframes pulseDb { 0% { transform: scale(1); opacity: 0.7; } 50% { transform: scale(1.05); opacity: 1; } 100% { transform: scale(1); opacity: 0.7; } }
-        .floating-dot { position: absolute; width: 6px; height: 6px; background: #a78bfa; border-radius: 50%; animation: floatData 2s infinite alternate; }
-        @keyframes floatData { 0% { transform: translateY(0px); opacity: 0; } 100% { transform: translateY(-20px); opacity: 1; } }
-        
-        .game-btn {
-            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-            background: linear-gradient(145deg, #ffffff, #f1f5f9);
-            border: 1px solid rgba(124, 58, 237, 0.2);
-        }
-        .game-btn:hover { transform: translateY(-6px) scale(1.02); box-shadow: 0 20px 30px -12px rgba(124, 58, 237, 0.35); border-color: #7c3aed; background: white; }
-    </style>
+ <meta charset="UTF-8">
+ <meta name="viewport" content="width=device-width, initial-scale=1.0">
+ <title>NEXUS VIP V15 · TABS</title>
+ <style>
+ :root { --neon: #00ff41; --danger: #ff003c; --gold: #ffea00; --bg: #050505; }
+ body { background: var(--bg); color: #fff; font-family: 'Segoe UI', sans-serif; margin: 0; user-select: none; overflow-x: hidden; }
+ .header-container { text-align: center; padding: 30px 10px; }
+ .zigzag-name { font-size: 38px; font-weight: 900; letter-spacing: 5px; color: #fff; text-transform: uppercase; text-shadow: 2px 2px var(--danger), -2px -2px var(--neon), 0 0 20px var(--neon); animation: glitch 1.5s infinite; }
+ @keyframes glitch { 0% { transform: skew(0deg); } 20% { transform: skew(-3deg); text-shadow: 2px 2px var(--neon), -2px -2px var(--danger); } 40% { transform: skew(3deg); } 100% { transform: skew(0deg); } }
+ .glass-box { max-width: 400px; margin: 0 auto 20px; background: rgba(255,255,255,0.03); border: 1px solid rgba(0,255,65,0.2); border-radius: 25px; padding: 25px; backdrop-filter: blur(15px); text-align: center; }
+ input { width: 100%; padding: 15px; background: rgba(0,0,0,0.6); border: 1px solid #333; border-radius: 12px; color: var(--neon); font-size: 16px; margin: 15px 0; outline: none; text-align: center; }
+ .btn-main { width: 100%; padding: 15px; background: linear-gradient(45deg, var(--neon), #008f11); border: none; border-radius: 12px; color: #000; font-weight: 800; text-transform: uppercase; letter-spacing: 2px; cursor: pointer; }
+ .pred-val { font-size: 55px; font-weight: 900; margin: 10px 0; text-shadow: 0 0 20px var(--neon); color: #fff; }
+ .footer-branding { margin-top: 30px; padding: 15px; text-align: center; }
+ .name-box { display: inline-block; padding: 10px 30px; border: 1px solid var(--neon); border-radius: 5px; color: var(--neon); font-weight: bold; letter-spacing: 3px; background: rgba(0, 255, 65, 0.05); }
+ table { width: 100%; margin-top: 20px; border-collapse: collapse; font-size: 11px; }
+ th { color: #888; border-bottom: 1px solid #222; padding: 8px; }
+ td { padding: 10px; border-bottom: 1px solid #111; text-align: center; }
+ .win { color: var(--neon); font-weight: bold; }
+ .loss { color: var(--danger); font-weight: bold; }
+ .hidden { display: none; }
+ /* Tab Styles */
+ .tab-container {
+ display: flex;
+ gap: 10px;
+ margin: 20px 0;
+ justify-content: center;
+ }
+ .tab-btn {
+ flex: 1;
+ max-width: 150px;
+ padding: 12px 20px;
+ background: transparent;
+ border: 2px solid var(--neon);
+ border-radius: 40px;
+ color: var(--neon);
+ font-weight: 800;
+ font-size: 14px;
+ cursor: pointer;
+ transition: all 0.3s;
+ text-transform: uppercase;
+ letter-spacing: 2px;
+ }
+ .tab-btn.active {
+ background: var(--neon);
+ color: black;
+ box-shadow: 0 0 20px var(--neon);
+ }
+ .tab-btn:hover {
+ transform: translateY(-2px);
+ box-shadow: 0 5px 15px var(--neon);
+ }
+ .timer {
+ font-size: 32px;
+ font-weight: 900;
+ color: var(--gold);
+ text-align: center;
+ margin: 10px 0;
+ text-shadow: 0 0 15px var(--gold);
+ }
+ .same-nums {
+ color: var(--gold);
+ font-size: 16px;
+ border: 1px dashed var(--gold);
+ padding: 8px;
+ margin: 10px 0;
+ border-radius: 12px;
+ text-align: center;
+ }
+ .jackpot-badge {
+ display: inline-block;
+ background: var(--gold);
+ color: black;
+ font-size: 10px;
+ font-weight: 900;
+ padding: 3px 8px;
+ border-radius: 20px;
+ margin-left: 5px;
+ animation: pulse 1s infinite;
+ }
+ @keyframes pulse {
+ 0%, 100% { transform: scale(1); }
+ 50% { transform: scale(1.1); background: #ffaa00; }
+ }
+ .status-icon {
+ font-size: 16px;
+ margin-right: 5px;
+ }
+ </style>
 </head>
-<body>
-
-    <!-- ==================== LOGIN SCREEN ==================== -->
-    <div id="loginScreen" class="min-h-screen flex items-center justify-center px-4 py-8" style="background: radial-gradient(circle at 10% 30%, rgba(124,58,237,0.08), transparent);">
-        <div class="w-full max-w-md">
-            <div class="text-center mb-8">
-                <div class="database-animation inline-block mb-3 relative">
-                    <div class="data-stream"></div>
-                    <i class="fas fa-database text-5xl text-purple-600 pulse-db relative z-10"></i>
-                    <div class="floating-dot" style="top: -5px; right: -8px;"></div>
-                    <div class="floating-dot" style="bottom: 0px; left: -10px; animation-delay: 0.5s;"></div>
-                </div>
-                <h1 class="text-5xl font-extrabold bg-gradient-to-r from-purple-700 via-indigo-600 to-purple-500 bg-clip-text text-transparent animate__animated animate__fadeInDown">POSCUS AI</h1>
-                <p class="text-gray-500 mt-2 text-sm flex items-center justify-center gap-2"><i class="fas fa-shield-alt text-purple-500"></i> Neural Secure Gateway <i class="fas fa-microchip text-purple-500"></i></p>
-                <div class="flex justify-center gap-3 mt-3">
-                    <i class="fas fa-chart-line text-purple-300 animate-pulse"></i>
-                    <i class="fas fa-cloud-upload-alt text-purple-400 animate-bounce" style="animation-duration: 2s;"></i>
-                    <i class="fas fa-database text-purple-500 animate-pulse"></i>
-                </div>
-            </div>
-
-            <div class="card p-6 mb-6 backdrop-blur-sm bg-white/90">
-                <div class="flex items-center gap-3 mb-3">
-                    <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-100 to-indigo-100 flex items-center justify-center"><i class="fas fa-fingerprint text-purple-600 text-xl"></i></div>
-                    <div><p class="text-xs text-gray-400 font-bold uppercase">Secure Device Identity</p><p class="text-sm font-mono font-bold text-purple-700" id="deviceIdDisplay">-- generating --</p></div>
-                </div>
-                <div class="border-t border-dashed border-gray-200 pt-3 mt-1 text-xs text-gray-500 flex items-center gap-1"><i class="fas fa-microchip"></i> Hardware anchored · TEE protected</div>
-            </div>
-
-            <div class="card p-6 shadow-2xl">
-                <div class="flex items-center gap-2 mb-5"><i class="fas fa-lock text-purple-500"></i><span class="font-bold text-gray-700">Verify Access Credentials</span></div>
-                <input type="text" id="accessPassword" placeholder="Enter your access key" class="w-full p-3 border border-purple-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-400 bg-gray-50">
-                <p id="loginMsg" class="text-xs text-gray-400 mt-2 flex items-center gap-1">Enter the key provided by admin</p>
-                <button id="loginBtn" class="w-full mt-5 gradient-bg text-white py-3 rounded-xl font-bold shadow-lg hover:shadow-xl transition-all flex items-center justify-center gap-2"><i class="fas fa-arrow-right-to-bracket"></i> Unlock Neural Engine</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- ==================== PLATFORM SELECTION SCREEN ==================== -->
-    <div id="platformScreen" class="min-h-screen px-4 py-6" style="display: none;">
-        <div class="text-center mb-8 animate__animated animate__fadeIn">
-            <div class="inline-flex items-center gap-2 bg-white/70 backdrop-blur px-5 py-2 rounded-full shadow"><i class="fas fa-gamepad text-purple-600"></i><span class="font-bold">Choose Gaming Arena</span><i class="fas fa-joystick text-purple-500"></i></div>
-            <h2 class="text-2xl font-extrabold mt-4 bg-gradient-to-r from-purple-800 to-indigo-700 bg-clip-text text-transparent">SELECT PLATFORM</h2>
-            <p class="text-gray-500 text-sm">Your predictions will be optimized for selected platform</p>
-        </div>
-        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 max-w-5xl mx-auto" id="platformGrid"></div>
-        <div class="mt-8 text-center"><button id="logoutFromPlatform" class="text-sm text-gray-400 hover:text-red-500 transition"><i class="fas fa-power-off"></i> Logout & change device</button></div>
-    </div>
-
-    <!-- ==================== MAIN DASHBOARD (original HTML content) ==================== -->
-    <div id="mainAppContainer" style="display: none;">
-        <header class="pt-6 pb-3 text-center px-2 relative">
-            <div class="absolute top-4 right-4 flex gap-2" style="display:none;">
-                <button id="switchPlatformBtn" class="text-xs bg-white/80 backdrop-blur px-3 py-1.5 rounded-full shadow border border-purple-200 text-purple-700 font-bold flex items-center gap-1"><i class="fas fa-exchange-alt"></i> Switch Platform</button>
-                <button id="logoutMainBtn" class="text-xs bg-white/80 backdrop-blur px-3 py-1.5 rounded-full shadow border border-gray-200 text-gray-600"><i class="fas fa-sign-out-alt"></i> Logout</button>
-            </div>
-            <svg id="appHeaderSvg" viewBox="0 0 800 120" class="w-full max-w-md mx-auto">
-                <text x="50%" y="50%">SURE SHOT AI PRO</text>
-            </svg>
-            <p class="text-sm text-text-secondary mt-2">Dragon Neural Engine · BIG/SMALL AI v8.0 | Platform: <span id="activePlatformLabel" class="font-bold text-purple-600">--</span></p>
-        </header>
-
-        <main class="max-w-4xl mx-auto px-2">
-            <!-- Home Section -->
-            <div id="homeSection" class="content-section active">
-                <div class="card gradient-bg p-6 text-white mb-6 animate__animated animate__fadeIn relative overflow-hidden">
-                    <div class="grid grid-cols-2 gap-4 relative z-10">
-                        <div class="period-box bg-white/20 backdrop-blur-md rounded-xl p-3 text-center">
-                            <p class="text-xs uppercase opacity-90 mb-2 tracking-wider">Current Period</p>
-                            <h2 id="displayPeriod" class="text-2xl font-bold tracking-tighter">-----</h2>
-                        </div>
-                        <div class="period-box bg-white/20 backdrop-blur-md rounded-xl p-3 text-center">
-                            <p class="text-xs uppercase opacity-90 mb-2 tracking-wider">AI Prediction</p>
-                            <h2 id="displayPrediction" class="text-2xl font-bold">ANALYZING</h2>
-                        </div>
-                    </div>
-                    <div class="mt-4 text-center relative z-10">
-                        <p class="text-xs uppercase font-bold opacity-80 mb-2 tracking-wider">Recent Numbers Analysis</p>
-                        <div id="recentNumbers" class="flex justify-center gap-2 mt-2"></div>
-                        <div id="methodInfo" class="flex flex-wrap justify-center gap-1 mt-3" style="display:none!important;"></div>
-                        <div id="trendSummary" class="mt-3 text-sm opacity-90"></div>
-                    </div>
-                </div>
-
-                <div class="card p-5 mb-5">
-                    <h3 class="font-bold text-base mb-4 flex items-center gap-2">
-                        <div class="w-9 h-9 gradient-bg rounded-xl flex items-center justify-center text-white shadow"><i class="fas fa-dragon"></i></div>
-                        <span>Dragon Pattern Matrix</span>
-                    </h3>
-                    <div id="predictionTypeCard" class="mb-4 p-3 rounded-xl bg-gradient-to-r from-purple-50 to-blue-50 border border-purple-200">
-                        <p class="text-xs text-purple-600 font-bold mb-1">ACTIVE PREDICTION MODE</p>
-                        <p id="activePredictionType" class="text-lg font-bold text-purple-700">SIZE ANALYSIS</p>
-                    </div>
-                    
-                    <div class="probability-card mb-3">
-                        <div class="probability-label flex justify-between"><span><i class="fas fa-expand-alt"></i> BIG Probability</span><span id="bigProbabilityValue" class="font-bold">0%</span></div>
-                        <div class="probability-bar"><div id="bigProbabilityBar" class="probability-fill bg-gradient-to-r from-blue-500 to-cyan-400" style="width: 0%"></div></div>
-                        <div class="probability-label flex justify-between"><span><i class="fas fa-compress-alt"></i> SMALL Probability</span><span id="smallProbabilityValue" class="font-bold">0%</span></div>
-                        <div class="probability-bar"><div id="smallProbabilityBar" class="probability-fill bg-gradient-to-r from-purple-500 to-pink-400" style="width: 0%"></div></div>
-                    </div>
-
-                    <div class="grid grid-cols-2 gap-3 mb-4">
-                        <div class="bg-gradient-to-br from-purple-50 to-white p-3 rounded-xl border border-purple-100">
-                            <p class="text-xs text-purple-600 font-bold">SCORE EDGE</p>
-                            <p id="sizeEdgeValue" class="text-2xl font-bold text-purple-700">0%</p>
-                            <p id="sizePreference" class="text-xs text-purple-500">Neutral</p>
-                        </div>
-                        <div class="bg-gradient-to-br from-indigo-50 to-white p-3 rounded-xl border border-indigo-100">
-                            <p class="text-xs text-indigo-600 font-bold">PATTERN STRENGTH</p>
-                            <p id="patternStrengthLabel" class="text-lg font-bold text-indigo-700">LOW</p>
-                        </div>
-                    </div>
-
-                    <div class="mt-4">
-                        <p class="text-sm font-bold text-text-secondary uppercase mb-2 tracking-wider flex items-center gap-1"><i class="fas fa-crown text-amber-500"></i> Detected Patterns</p>
-                        <div id="modelPerformance" class="space-y-2"></div>
-                    </div>
-
-                    <div class="mt-4 p-4 bg-gradient-to-r from-purple-50 via-white to-blue-50 rounded-xl border border-purple-200 shadow-inner">
-                        <div class="flex justify-between items-center">
-                            <div><p class="text-xs font-bold text-purple-600 uppercase mb-1 tracking-wider">🎯 PRO RECOMMENDATION</p><p id="recommendedPrediction" class="text-lg font-bold text-text-primary">Analyzing patterns</p></div>
-                            <div class="text-right"><p class="text-xs font-bold text-text-secondary mb-1">Confidence</p><p id="recommendedConfidenceValue" class="text-2xl font-bold text-green-500">0%</p></div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-5">
-                    <div class="card p-4 text-center"><div class="w-10 h-10 gradient-bg rounded-lg flex items-center justify-center text-white mx-auto mb-2 shadow"><i class="fas fa-bullseye text-sm"></i></div><p class="text-xs text-text-secondary uppercase font-bold mb-1">Accuracy</p><p id="statAccuracy" class="text-xl font-bold text-accent-primary">0%</p></div>
-                    <div class="card p-4 text-center"><div class="w-10 h-10 bg-gradient-to-br from-green-500 to-emerald-400 rounded-lg flex items-center justify-center text-white mx-auto mb-2 shadow"><i class="fas fa-trophy text-sm"></i></div><p class="text-xs text-text-secondary uppercase font-bold mb-1">Wins</p><p id="statWins" class="text-xl font-bold text-win-color">0</p></div>
-                    <div class="card p-4 text-center"><div class="w-10 h-10 bg-gradient-to-br from-red-500 to-pink-400 rounded-lg flex items-center justify-center text-white mx-auto mb-2 shadow"><i class="fas fa-exclamation-triangle text-sm"></i></div><p class="text-xs text-text-secondary uppercase font-bold mb-1">Losses</p><p id="statLosses" class="text-xl font-bold text-loss-color">0</p></div>
-                    <div class="card p-4 text-center"><div class="w-10 h-10 bg-gradient-to-br from-amber-500 to-orange-400 rounded-lg flex items-center justify-center text-white mx-auto mb-2 shadow"><i class="fas fa-fire text-sm"></i></div><p class="text-xs text-text-secondary uppercase font-bold mb-1">Streak</p><div id="streakInfo" class="flex items-center justify-center gap-1"><div class="w-2 h-2 rounded-full bg-gray-300"></div><p class="text-base font-bold">-</p></div></div>
-                </div>
-            </div>
-
-            <div id="historySection" class="content-section">
-                <div class="flex justify-between items-center mb-6"><div class="flex items-center gap-2"><div class="w-9 h-9 gradient-bg rounded-lg flex items-center justify-center text-white shadow"><i class="fas fa-history"></i></div><h2 class="text-lg font-bold">Game History</h2></div><button onclick="clearHistory()" class="text-sm bg-gradient-to-r from-red-50 to-pink-50 text-red-500 px-3 py-1.5 rounded-lg font-bold"><i class="fas fa-trash-alt mr-1"></i> Clear</button></div>
-                <div id="historyContainer" class="space-y-3"></div>
-            </div>
-
-            <div id="statsSection" class="content-section">
-                <div class="flex items-center gap-2 mb-6"><div class="w-9 h-9 gradient-bg rounded-lg flex items-center justify-center text-white shadow"><i class="fas fa-chart-line"></i></div><h2 class="text-lg font-bold">Performance Statistics</h2></div>
-                <div class="grid grid-cols-1 gap-4">
-                    <div class="card p-5 flex items-center justify-between"><div><p class="text-xs text-text-secondary font-bold uppercase mb-1">Total Predictions</p><p id="totalPreds" class="text-3xl font-black text-accent-primary">0</p><p class="text-xs text-text-secondary mt-1">AI-powered decisions made</p></div><div class="w-14 h-14 gradient-bg rounded-xl flex items-center justify-center text-white shadow"><i class="fas fa-calculator text-xl"></i></div></div>
-                    <div class="card p-5"><p class="text-xs text-text-secondary font-bold uppercase mb-3"><i class="fas fa-cogs text-accent-primary"></i> Model Accuracy Breakdown</p><div id="modelAccuracyStats" class="space-y-2"></div></div>
-                    <div class="card p-5"><p class="text-xs text-text-secondary font-bold uppercase mb-3"><i class="fas fa-chart-bar text-accent-primary"></i> Pattern Analysis</p><div id="patternStats" class="grid grid-cols-2 gap-3"></div></div>
-                </div>
-            </div>
-
-            <div id="aboutSection" class="content-section"><div class="card p-6">
-                <div class="grid grid-cols-2 gap-3 mb-5">
-                    <button onclick="document.getElementById('switchPlatformBtn').click()" class="flex items-center justify-center gap-2 p-3 rounded-xl font-bold text-purple-700 border border-purple-200 bg-gradient-to-r from-purple-50 to-indigo-50 hover:shadow-md transition-all"><i class="fas fa-exchange-alt"></i> Switch Platform</button>
-                    <button onclick="document.getElementById('logoutMainBtn').click()" class="flex items-center justify-center gap-2 p-3 rounded-xl font-bold text-red-600 border border-red-200 bg-gradient-to-r from-red-50 to-pink-50 hover:shadow-md transition-all"><i class="fas fa-sign-out-alt"></i> Logout</button>
-                </div>
-                <div class="flex items-center gap-3 mb-5"><div class="w-10 h-10 gradient-bg rounded-xl flex items-center justify-center text-white shadow"><i class="fas fa-robot"></i></div><div><h2 class="text-xl font-bold">SURE SHOT AI PRO</h2><p class="text-sm text-text-secondary">Dragon Neural Engine v8.0</p></div></div><p class="text-sm text-text-secondary leading-relaxed mb-6">Advanced BIG/SMALL prediction system using Dragon Pattern detection: ZigZag, Alternate, Dragon Streaks, Sandwich & Nani reversal algorithms with AI scoring.</p><div class="space-y-4"><div class="flex items-center gap-3 p-3 bg-gradient-to-r from-gray-50 to-white rounded-xl"><div class="w-10 h-10 gradient-bg rounded-lg flex items-center justify-center text-white shadow"><i class="fab fa-telegram-plane"></i></div><div class="flex-1"><p class="text-sm font-bold text-text-primary">Official Channel</p><a href="#" class="text-sm text-accent-primary font-bold">@SURE_SHOT_AI_PRO</a></div></div><div class="p-3 border border-dashed border-green-200 rounded-xl bg-gradient-to-r from-green-50 to-emerald-50"><p class="text-xs text-green-600 font-bold uppercase"><i class="fas fa-star"></i> New Feature</p><p class="text-sm text-green-700 font-medium">Ensemble Dragon Scoring · Real-time Pattern Detection</p></div></div></div></div>
-        </main>
-
-        <nav class="navigation">
-            <a href="#" class="nav-link active" data-section="homeSection">
-                <div class="nav-icon-wrap"><i class="fas fa-th-large"></i></div>
-                <span>Dashboard</span>
-            </a>
-            <a href="#" class="nav-link" data-section="historySection">
-                <div class="nav-icon-wrap"><i class="fas fa-history"></i></div>
-                <span>History</span>
-            </a>
-            <a href="#" class="nav-link" data-section="statsSection">
-                <div class="nav-icon-wrap"><i class="fas fa-chart-line"></i></div>
-                <span>Analytics</span>
-            </a>
-            <a href="#" class="nav-link" data-section="aboutSection">
-                <div class="nav-icon-wrap"><i class="fas fa-info-circle"></i></div>
-                <span>About</span>
-            </a>
-        </nav>
-    </div>
-
-    <script>
-        // ==================== DEVICE ID & GLOBAL STATE ====================
-        function getOrCreateDeviceId() {
-            let deviceId = localStorage.getItem('poscus_device_unique_id');
-            if (!deviceId) {
-                const randomPart = Math.random().toString(36).substring(2, 12) + Date.now().toString(36);
-                deviceId = `Poscus-${randomPart.slice(0, 12)}`;
-                localStorage.setItem('poscus_device_unique_id', deviceId);
-            }
-            return deviceId;
-        }
-        const deviceId = getOrCreateDeviceId();
-        if (document.getElementById('deviceIdDisplay')) document.getElementById('deviceIdDisplay').innerText = deviceId;
-
-        let isLoggedIn = localStorage.getItem('poscus_auth') === 'true';
-        let selectedPlatform = localStorage.getItem('poscus_selected_platform') || null;
-
-        const loginScreen = document.getElementById('loginScreen');
-        const platformScreen = document.getElementById('platformScreen');
-        const mainApp = document.getElementById('mainAppContainer');
-
-        function showLogin() { loginScreen.style.display = 'flex'; platformScreen.style.display = 'none'; mainApp.style.display = 'none'; }
-        function showPlatformSelection() { loginScreen.style.display = 'none'; platformScreen.style.display = 'block'; mainApp.style.display = 'none'; renderPlatformGrid(); }
-        function showMainApp() {
-            loginScreen.style.display = 'none';
-            platformScreen.style.display = 'none';
-            mainApp.style.display = 'block';
-            if (selectedPlatform) document.getElementById('activePlatformLabel').innerText = selectedPlatform;
-            // Ensure main dashboard scripts are initialized only once
-            if (typeof window.mainAppInitialized === 'undefined') {
-                window.mainAppInitialized = true;
-                initMainDashboard();
-            }
-        }
-
-        // ==================== PLATFORM GRID (all game buttons) ====================
-        const gamesList = [
-            { name: "Jalwa", emoji: "🔥🎲" }, { name: "Bdg win", emoji: "🐉💎" }, { name: "Tashan win", emoji: "⚡🃏" }, { name: "Trianga", emoji: "🎯🏆" },
-            { name: "Raja Game", emoji: "👑🎰" }, { name: "51game", emoji: "🃏🔮" }, { name: "91club", emoji: "💥🎲" }, { name: "55club", emoji: "🍀🎯" },
-            { name: "Dmwin", emoji: "🤖💎" }, { name: "DIUWIN", emoji: "⚡🏅" }, { name: "Okwin", emoji: "✅🎰" }, { name: "Jai club", emoji: "🙌🔥" },
-            { name: "Winzo", emoji: "⚙️🎮" }, { name: "Khelo365", emoji: "🎲🎯" }, { name: "Lucky7", emoji: "7️⃣🍀" }, { name: "SpinMaster", emoji: "🌀💢" }
-        ];
-        function renderPlatformGrid() {
-            const grid = document.getElementById('platformGrid');
-            if (!grid) return;
-            grid.innerHTML = gamesList.map(game => `
-                <button class="game-btn p-3 rounded-xl shadow-md flex flex-col items-center justify-center gap-1 transition-all hover:scale-105" data-platform="${game.name}">
-                    <span class="text-3xl">${game.emoji.split(' ')[0]}</span>
-                    <span class="font-bold text-purple-800">${game.name}</span>
-                    <span class="text-xs text-gray-500">${game.emoji.includes('🎲') ? 'LIVE' : 'ACTIVE'}</span>
-                </button>
-            `).join('');
-            document.querySelectorAll('[data-platform]').forEach(btn => {
-                btn.addEventListener('click', (e) => {
-                    const platform = btn.getAttribute('data-platform');
-                    localStorage.setItem('poscus_selected_platform', platform);
-                    selectedPlatform = platform;
-                    showMainApp();
-                });
-            });
-        }
-
-        // ==================== LOGOUT ====================
-        function logoutFull(reason) {
-            localStorage.removeItem('poscus_auth');
-            localStorage.removeItem('poscus_selected_platform');
-            localStorage.removeItem('poscus_active_key');
-            isLoggedIn = false;
-            selectedPlatform = null;
-            showLogin();
-            document.getElementById('accessPassword').value = '';
-            // stop intervals to avoid background updates
-            if (window.fetchInterval) clearInterval(window.fetchInterval);
-            if (window.keyCheckInterval) clearInterval(window.keyCheckInterval);
-            window.mainAppInitialized = false;
-            // Show reason if admin deleted key
-            if (reason === 'key_deleted') {
-                const loginMsg = document.getElementById('loginMsg');
-                if (loginMsg) {
-                    loginMsg.innerHTML = '<span class="text-red-500">🚫 Your access key has been revoked by admin. Contact support.</span>';
-                }
-            }
-        }
-
-        // ==================== BACKGROUND KEY VALIDATOR ====================
-        // Checks every 10 seconds if user's key is still active in Firebase
-        // If key is deleted or deactivated → instant logout
-        async function validateKeyInBackground() {
-            const activeKey = localStorage.getItem('poscus_active_key');
-            if (!activeKey || !isLoggedIn) return;
-            try {
-                const res = await fetch(`${DB_URL}/keys/${encodeURIComponent(activeKey)}.json`);
-                const data = await res.json();
-                // Key deleted (null) or deactivated (active !== true) → force logout
-                if (!data || data.active !== true) {
-                    logoutFull('key_deleted');
-                }
-            } catch (e) {
-                // Network error — do NOT logout (be tolerant of temporary failures)
-                console.warn("Key validation check failed (network):", e);
-            }
-        }
-
-        function startKeyValidation() {
-            // Clear any existing interval first
-            if (window.keyCheckInterval) clearInterval(window.keyCheckInterval);
-            // Validate immediately, then every 10 seconds
-            validateKeyInBackground();
-            window.keyCheckInterval = setInterval(validateKeyInBackground, 10000);
-        }
-        document.getElementById('logoutFromPlatform')?.addEventListener('click', logoutFull);
-        document.getElementById('logoutMainBtn')?.addEventListener('click', logoutFull);
-        document.getElementById('switchPlatformBtn')?.addEventListener('click', () => { showPlatformSelection(); });
-
-        // ==================== FIREBASE KEY LOGIN ====================
-        const DB_URL = "https://poscus-ai-80611-default-rtdb.asia-southeast1.firebasedatabase.app";
-
-        function showMsg(html, autoClear = true) {
-            const loginMsg = document.getElementById('loginMsg');
-            loginMsg.innerHTML = html;
-            if (autoClear) {
-                clearTimeout(window._msgTimer);
-                window._msgTimer = setTimeout(() => {
-                    loginMsg.innerHTML = 'Enter the key provided by admin';
-                }, 5000);
-            }
-        }
-
-        document.getElementById('loginBtn')?.addEventListener('click', async () => {
-            const keyInput = document.getElementById('accessPassword').value.trim();
-            const loginBtn = document.getElementById('loginBtn');
-
-            if (!keyInput) {
-                showMsg('<span class="text-red-500">Please enter your access key</span>');
-                return;
-            }
-
-            // Show loading state
-            loginBtn.disabled = true;
-            loginBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Verifying...';
-            showMsg('<span class="text-purple-500">Checking key with server...</span>', false);
-
-            try {
-                const res = await fetch(`${DB_URL}/keys/${encodeURIComponent(keyInput)}.json`);
-                const data = await res.json();
-
-                if (!data || data.active !== true) {
-                    showMsg('<span class="text-red-500">❌ Invalid or inactive key. Contact admin.</span>');
-                    loginBtn.disabled = false;
-                    loginBtn.innerHTML = '<i class="fas fa-arrow-right-to-bracket"></i> Unlock Neural Engine';
-                    return;
-                }
-
-                const currentDevice = deviceId;
-                const savedDevice = data.device || "";
-
-                if (savedDevice !== "" && savedDevice !== currentDevice) {
-                    showMsg('<span class="text-red-500">⚠️ Key locked to another device. Contact admin to reset.</span>');
-                    loginBtn.disabled = false;
-                    loginBtn.innerHTML = '<i class="fas fa-arrow-right-to-bracket"></i> Unlock Neural Engine';
-                    return;
-                }
-
-                // If device not yet set, bind this device to the key
-                if (savedDevice === "") {
-                    await fetch(`${DB_URL}/keys/${encodeURIComponent(keyInput)}.json`, {
-                        method: 'PATCH',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ device: currentDevice })
-                    });
-                }
-
-                // Success — direct login, no message
-                localStorage.setItem('poscus_auth', 'true');
-                localStorage.setItem('poscus_active_key', keyInput);
-                isLoggedIn = true;
-                startKeyValidation(); // ← Begin background key monitoring
-                showPlatformSelection();
-
-            } catch (e) {
-                showMsg('<span class="text-red-400">Network error. Please try again.</span>');
-                loginBtn.disabled = false;
-                loginBtn.innerHTML = '<i class="fas fa-arrow-right-to-bracket"></i> Unlock Neural Engine';
-            }
-        });
-
-        // ==================== PREDICTION ENGINE v14.0 — High Accuracy ====================
-        const RULE1 = ['BIG','SMALL','SMALL','BIG','SMALL','BIG'];
-        const RULE2 = ['BIG','BIG','SMALL','SMALL'];
-
-        function matchCycle(seqOldFirst, pattern, minLen) {
-            const pLen = pattern.length, n = seqOldFirst.length;
-            if (n < minLen) return null;
-            for (let offset = 0; offset < pLen; offset++) {
-                let ok = true;
-                for (let i = 0; i < n; i++) {
-                    if (seqOldFirst[i] !== pattern[(offset + i) % pLen]) { ok = false; break; }
-                }
-                if (ok) return { next: pattern[(offset + n) % pLen], matchLen: n };
-            }
-            return null;
-        }
-
-        function getStreak(seq) {
-            let len = 1;
-            while (len < seq.length && seq[len] === seq[0]) len++;
-            return { val: seq[0], len };
-        }
-
-        function isAlternating(seq) {
-            const s = seq.slice(0, 6);
-            let alt = true;
-            for (let i = 1; i < s.length; i++) { if (s[i] === s[i-1]) { alt = false; break; } }
-            return s.length >= 4 && alt;
-        }
-
-        // Count consecutive losses from history to apply anti-loss correction
-        function getRecentLossStreak() {
-            const recent = gameHistory.filter(i => i.status !== 'PENDING').slice(0, 5);
-            let losses = 0;
-            for (const r of recent) { if (r.status === 'LOSS') losses++; else break; }
-            return losses;
-        }
-
-        function dragonScoreEngine(seq) {
-            if (!seq || seq.length < 3) return null;
-            const of = [...seq].reverse(); // oldest first
-            const len = of.length;
-            const patterns = {};
-            const votes = { BIG: 0, SMALL: 0 };
-            let signalCount = 0;
-
-            // ── Signal 1: Streak reversal (weighted by streak length) ──
-            const stk = getStreak(seq);
-            patterns.streak = stk;
-            if (stk.len >= 6)      { const r = stk.val==='BIG'?'SMALL':'BIG'; votes[r] += 8; signalCount++; }
-            else if (stk.len === 5){ const r = stk.val==='BIG'?'SMALL':'BIG'; votes[r] += 7; signalCount++; }
-            else if (stk.len === 4){ const r = stk.val==='BIG'?'SMALL':'BIG'; votes[r] += 6; signalCount++; }
-            else if (stk.len === 3){ const r = stk.val==='BIG'?'SMALL':'BIG'; votes[r] += 4; signalCount++; }
-            else if (stk.len === 2){ const r = stk.val==='BIG'?'SMALL':'BIG'; votes[r] += 1; signalCount++; }
-
-            // ── Signal 2: Rule 1 cycle match (min 4) ──
-            let r1 = null;
-            for (let w = Math.min(len, 6); w >= 4; w--) {
-                r1 = matchCycle(of.slice(len - w), RULE1, 4);
-                if (r1) break;
-            }
-            if (r1) { votes[r1.next] += 4; signalCount++; patterns.rule1 = r1; }
-
-            // ── Signal 3: Rule 2 pair cycle (BBSS) ──
-            const r2 = len >= 4 ? matchCycle(of.slice(len - 4), RULE2, 4) : null;
-            if (r2) { votes[r2.next] += 4; signalCount++; patterns.rule2 = r2; }
-
-            // ── Signal 4: Alternating pattern (BSBSBS) → continue alternating ──
-            if (isAlternating(seq)) {
-                const next = seq[0] === 'BIG' ? 'SMALL' : 'BIG';
-                votes[next] += 5; signalCount++;
-                patterns.alt = true;
-            }
-
-            // ── Signal 5: Pair switch (AABB → after 2nd, switch) ──
-            if (seq.length >= 3 && seq[0] === seq[1] && seq[1] !== seq[2]) {
-                votes[seq[2]] += 3; signalCount++;
-                patterns.pair = true;
-            }
-
-            // ── RULE 4: 4+ consecutive BIG → strong SMALL reversal ──
-            const bigStreakLen = (() => { let c = 0; for (const v of seq) { if (v === 'BIG') c++; else break; } return c; })();
-            if (bigStreakLen >= 4) {
-                votes['SMALL'] += 7; signalCount++;
-                patterns.rule4 = { streakLen: bigStreakLen };
-            }
-
-            // ── RULE 5: 4+ consecutive SMALL → strong BIG reversal ──
-            const smallStreakLen = (() => { let c = 0; for (const v of seq) { if (v === 'SMALL') c++; else break; } return c; })();
-            if (smallStreakLen >= 4) {
-                votes['BIG'] += 7; signalCount++;
-                patterns.rule5 = { streakLen: smallStreakLen };
-            }
-
-            // ── Signal 6: Last 8 frequency bias ──
-            const last8 = seq.slice(0, 8);
-            const bigCount8  = last8.filter(s => s === 'BIG').length;
-            const smCount8   = last8.length - bigCount8;
-            if (bigCount8 >= 6)      { votes['SMALL'] += 3; signalCount++; }
-            else if (smCount8 >= 6)  { votes['BIG']   += 3; signalCount++; }
-            else if (bigCount8 >= 5) { votes['SMALL'] += 1; }
-            else if (smCount8 >= 5)  { votes['BIG']   += 1; }
-
-            // ── Signal 7: Anti-consecutive-loss correction ──
-            // If last 2+ predictions were wrong, boost opposite of current weak leader
-            const lossStrk = getRecentLossStreak();
-            if (lossStrk >= 2) {
-                // Find what we've been predicting wrong — boost opposite strongly
-                const recentPreds = gameHistory.filter(i => i.status === 'LOSS').slice(0, lossStrk);
-                if (recentPreds.length >= 2) {
-                    const wrongPred = recentPreds[0].predictedSize;
-                    const correction = wrongPred === 'BIG' ? 'SMALL' : 'BIG';
-                    const boost = lossStrk >= 3 ? 5 : 3;
-                    votes[correction] += boost;
-                    signalCount++;
-                    patterns.antiLoss = { lossStrk, correction };
-                }
-            }
-
-            // ── Fallback: no signals ──
-            if (signalCount === 0) {
-                // Slight bias toward opposite of last result
-                votes[seq[0] === 'BIG' ? 'SMALL' : 'BIG'] += 1;
-            }
-
-            const totalVotes = votes.BIG + votes.SMALL || 1;
-            const prediction = votes.BIG >= votes.SMALL ? 'BIG' : 'SMALL';
-            const dominance  = Math.max(votes.BIG, votes.SMALL) / totalVotes;
-            // Confidence: more conservative — avoids overconfident wrong calls
-            const rawConf    = Math.round(50 + dominance * 40 + Math.min(signalCount, 5) * 1.5);
-            const confidence = Math.min(88, Math.max(55, rawConf));
-            const bigProb    = Math.round((votes.BIG / totalVotes) * 100);
-
-            patterns.dominantTrend = prediction;
-            patterns.trendStrength = confidence / 100;
-            patterns.source        = r1 ? 'RULE1' : r2 ? 'RULE2' : patterns.rule4 ? 'RULE4' : patterns.rule5 ? 'RULE5' : stk.len >= 3 ? 'STREAK' : isAlternating(seq) ? 'ALT' : 'MULTI';
-
-            return {
-                prediction, confidence,
-                bigProb  : Math.max(15, Math.min(85, bigProb)),
-                smallProb: 100 - Math.max(15, Math.min(85, bigProb)),
-                scoreDiff: +((confidence - 50) / 5).toFixed(1),
-                scores   : { BIG: votes.BIG, SMALL: votes.SMALL },
-                patterns
-            };
-        }
-
-        // ── Clear old history once ─────────────────────────────────────────
-        const _HV = 'rules_v12';
-        if (localStorage.getItem('tx_history_version') !== _HV) {
-            localStorage.removeItem('tx_history_pro');
-            localStorage.setItem('tx_history_version', _HV);
-        }
-        let gameHistory = JSON.parse(localStorage.getItem('tx_history_pro')) || [];
-        let lockedPeriod = null;   // Period lock — one prediction per period
-        let lockedPred   = null;
-        let winStreak = 0, lossStreak = 0;
-        let engineStats = { BIG: { wins: 0, losses: 0 }, SMALL: { wins: 0, losses: 0 } };
-        function updateEngineStats(pred, won) { if (won) engineStats[pred].wins++; else engineStats[pred].losses++; }
-        function getAccuracy(side) { let t = engineStats[side].wins + engineStats[side].losses; return t === 0 ? 50 : Math.round((engineStats[side].wins / t) * 100); }
-
-        async function fetchGameResult() {
-            try {
-                const res = await fetch(`https://draw.ar-lottery01.com/WinGo/WinGo_1M/GetHistoryIssuePage.json?ts=${Date.now()}`);
-                const data = await res.json();
-                if (data?.data?.list?.length) processGameList(data.data.list);
-            } catch (e) { console.warn("API fetch error", e); }
-        }
-
-        function processGameList(list) {
-            const latest = list[0];
-            if (!latest || (!latest.issue && !latest.issueNumber)) return;
-            const latestIssue = latest.issue || latest.issueNumber;
-            let nextIssue;
-            try { nextIssue = (BigInt(latestIssue) + 1n).toString(); document.getElementById('displayPeriod').innerText = nextIssue.slice(-5); } catch(e) { return; }
-            let updated = false;
-            gameHistory.forEach(item => {
-                if (item.status === 'PENDING') {
-                    const actualResult = list.find(l => (l.issue || l.issueNumber) === item.issue);
-                    if (actualResult) {
-                        const actualNum = parseInt(actualResult.number);
-                        const actualSize = actualNum >= 5 ? 'BIG' : 'SMALL';
-                        item.actual = actualNum;
-                        item.actualSize = actualSize;
-                        const won = (item.predictedSize === actualSize);
-                        item.status = won ? 'WIN' : 'LOSS';
-                        updateEngineStats(item.predictedSize, won);
-                        if (won) { winStreak++; lossStreak = 0; } else { lossStreak++; winStreak = 0; }
-                        updated = true;
-                    }
-                }
-            });
-
-            // Always compute fresh prediction for current period
-            const recentNums = list.slice(0, Math.min(list.length, 10)).map(i => parseInt(i.number));
-            if (recentNums.length >= 3) {
-                const seq = recentNums.map(n => n >= 5 ? 'BIG' : 'SMALL');
-
-                if (nextIssue !== lockedPeriod) {
-                    // New period — compute & lock prediction
-                    const pred = dragonScoreEngine(seq);
-                    if (pred) {
-                        lockedPeriod = nextIssue;
-                        lockedPred   = pred;
-                        if (!gameHistory.find(i => i.issue === nextIssue)) {
-                            gameHistory.unshift({ issue: nextIssue, display: nextIssue.slice(-5), predictionType: 'SIZE', predictedSize: pred.prediction, status: 'PENDING', actual: null, actualSize: null, timestamp: Date.now(), confidence: pred.confidence, sizeEdge: pred.scoreDiff, bigProb: pred.bigProb, smallProb: pred.smallProb });
-                            updated = true;
-                        }
+<body oncontextmenu="return false;">
+<div class="header-container">
+ <div class="zigzag-name">𝙉𝙀𝙓𝙐𝙎 𝙑𝙄𝙋</div>
+ <div style="color: var(--gold); font-size: 10px; letter-spacing: 4px; margin-top: 5px;">𝗟𝗜𝗠𝗜𝗧𝗘𝗗 𝗘𝗗𝗜𝗧𝗜𝗢𝗡 𝗩𝟮𝟭 𝗘𝗫𝗧𝗥𝗘𝗠𝗘</div>
+</div>
+<div id="loginPage" class="glass-box">
+ <div id="step1">
+ <h3 style="margin:0 0 6px; color:var(--neon); font-size: 13px; letter-spacing:2px;">YOUR DEVICE ACCESS ID</h3>
+ <p style="color:#888; font-size:11px; margin:0 0 10px;">Send this ID to admin for activation</p>
+ <div id="deviceIdBox" style="
+ background: rgba(0,255,65,0.07);
+ border: 1.5px dashed var(--neon);
+ border-radius: 12px;
+ padding: 14px 10px;
+ font-size: 17px;
+ font-weight: 900;
+ letter-spacing: 2px;
+ color: #00ff41;
+ text-shadow: 0 0 10px #00ff41;
+ word-break: break-all;
+ ">...</div>
+ <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:12px; width:100%; box-sizing:border-box;">
+ <button class="btn-main" style="background: linear-gradient(45deg,#00ff41,#008f11); color:#000; font-size:12px; padding:12px 4px; width:100%; box-sizing:border-box;" onclick="copyDeviceId()">📋 COPY ID</button>
+ <button class="btn-main" id="activateBtn" style="font-size:12px; padding:12px 4px; width:100%; box-sizing:border-box;" onclick="directActivate()">🔓 ACTIVATE</button>
+ </div>
+ <div id="copyMsg" style="color:var(--neon);font-size:11px;margin:8px 0 0;opacity:0;transition:0.3s;text-align:center;">✅ Copied to clipboard!</div>
+ <div id="loadingMsg" style="color:var(--neon);font-size:12px;margin-top:10px;display:none;">⏳ Verifying with server...</div>
+ <p id="err" style="color:var(--danger); font-size: 12px; margin-top: 10px;"></p>
+ </div>
+ <div id="step2" style="display:none;">
+ <input type="text" id="keyIn" readonly>
+ </div>
+</div>
+<div id="appPage" class="glass-box hidden">
+ <div style="color: #888; font-size: 13px;" id="pID">PERIOD: ---</div>
+ <div class="tab-container">
+ <button class="tab-btn active" id="tab30" onclick="switchTab('30')">⚡ 30 SEC</button>
+ <button class="tab-btn" id="tab60" onclick="switchTab('60')">⏱️ 1 MIN</button>
+ </div>
+ <div class="timer" id="timer">00:30</div>
+ <div class="pred-val" id="pRes">WAIT...</div>
+ <div class="same-nums" id="pOpps">🎰 JACKPOT: --</div>
+ <table>
+ <thead><tr><th>PRD</th><th>PRED</th><th>NUM</th><th>STATUS</th></tr></thead>
+ <tbody id="logs"></tbody>
+ </table>
+ <button onclick="logout()" style="background:transparent; color:#444; border:none; margin-top:15px; font-size:10px; cursor:pointer;">LOGOUT</button>
+</div>
+<div class="footer-branding">
+ <div class="name-box">𝙉𝙀𝙓𝙐𝙎 𝙇𝙄𝙈𝙄𝙏𝙀𝘿 𝙀𝘿𝙄𝙏𝙄𝙊𝙉</div>
+</div>
+<script>
+ // ========== CONFIG ==========
+ const B_POOL = [5,6,7,8,9];
+ const S_POOL = [0,1,2,3,4];
+ // State
+ let currentTab = '30'; // '30' or '60'
+ let state30 = { lastId: null, savedPred: null, savedSame: [] };
+ let state60 = { lastId: null, savedPred: null, savedSame: [] };
+ // History storage
+ let history30 = [];
+ let history60 = [];
+ // ========== FIREBASE CONFIG ==========
+ const FIREBASE_CONFIG = {
+ apiKey: "AIzaSyBhi5pGjTV-sRSUUqTiVtFOtSqM1Oo48Qk",
+ authDomain: "bgmi-panel-6db22.firebaseapp.com",
+ projectId: "bgmi-panel-6db22",
+ storageBucket: "bgmi-panel-6db22.firebasestorage.app",
+ messagingSenderId: "879175612293",
+ appId: "1:879175612293:web:e88f6626ce391162cdf6ec"
+ };
+ // Load Firebase SDKs dynamically
+ function loadFirebase(callback) {
+ if (window.firebase && window.firebase.firestore) { callback(); return; }
+ const scripts = [
+ 'https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js',
+ 'https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js'
+ ];
+ let loaded = 0;
+ scripts.forEach(src => {
+ const s = document.createElement('script');
+ s.src = src;
+ s.onload = () => { loaded++; if (loaded === scripts.length) callback(); };
+ document.head.appendChild(s);
+ });
+ }
+ let fbDb = null;
+ function initFirebase() {
+ if (!firebase.apps.length) firebase.initializeApp(FIREBASE_CONFIG);
+ fbDb = firebase.firestore();
+ }
+ // ========== GENERATE DEVICE ID from browser/device info ==========
+ function generateDeviceId() {
+ // Nuke ALL old MAFIA- keys from every possible localStorage key
+ ['NEXUS_THIS_DEVICE_ID','NEXUS_DEVICE_ID','MAFIA_THIS_DEVICE_ID','MAFIA_DEVICE_ID','SR_ACTIVE_KEY'].forEach(k => {
+ const v = localStorage.getItem(k);
+ if (v && (v.startsWith('MAFIA-') || k.startsWith('MAFIA'))) localStorage.removeItem(k);
+ });
+ // Use stored NEXUS- ID if already generated
+ const stored = localStorage.getItem('NEXUS_THIS_DEVICE_ID');
+ if (stored && stored.startsWith('NEXUS-')) return stored;
+ // Build fingerprint from device info
+ const nav = window.navigator;
+ const screen = window.screen;
+ const raw = [
+ nav.userAgent,
+ nav.language,
+ screen.width + 'x' + screen.height,
+ screen.colorDepth,
+ new Date().getTimezoneOffset(),
+ nav.hardwareConcurrency || '',
+ nav.platform || ''
+ ].join('|');
+ // Simple hash
+ let hash = 0;
+ for (let i = 0; i < raw.length; i++) {
+ hash = ((hash << 5) - hash) + raw.charCodeAt(i);
+ hash |= 0;
+ }
+ const hex = Math.abs(hash).toString(36).toUpperCase().padStart(8, '0');
+ const rand = Math.random().toString(36).substring(2, 4).toUpperCase();
+ const deviceId = 'NEXUS-' + hex + rand;
+ localStorage.setItem('NEXUS_THIS_DEVICE_ID', deviceId);
+ return deviceId;
+ }
+ function copyDeviceId() {
+ const id = generateDeviceId();
+ navigator.clipboard.writeText(id).then(() => {
+ const msg = document.getElementById('copyMsg');
+ msg.style.opacity = '1';
+ setTimeout(() => msg.style.opacity = '0', 2000);
+ }).catch(() => {
+ // Fallback for older browsers
+ const el = document.createElement('textarea');
+ el.value = id;
+ document.body.appendChild(el);
+ el.select();
+ document.execCommand('copy');
+ document.body.removeChild(el);
+ const msg = document.getElementById('copyMsg');
+ msg.style.opacity = '1';
+ setTimeout(() => msg.style.opacity = '0', 2000);
+ });
+ }
+ async function directActivate() {
+ const deviceId = generateDeviceId();
+ document.getElementById('keyIn').value = deviceId;
+ const errEl = document.getElementById('err');
+ const loadEl = document.getElementById('loadingMsg');
+ const activateBtn = document.getElementById('activateBtn');
+ errEl.innerText = '';
+ loadEl.style.display = 'block';
+ activateBtn.disabled = true;
+ const result = await validateDeviceId(deviceId);
+ loadEl.style.display = 'none';
+ activateBtn.disabled = false;
+ if (result.valid) {
+ localStorage.setItem('NEXUS_DEVICE_ID', deviceId);
+ document.getElementById('loginPage').classList.add('hidden');
+ document.getElementById('appPage').classList.remove('hidden');
+ history30 = []; history60 = [];
+ runEngine(); startTimers();
+ } else {
+ errEl.innerText = result.reason;
+ }
+ }
+ function showActivateStep() { directActivate(); }
+ function showStep1() { document.getElementById('err').innerText = ''; }
+ // ========== DEVICE ID VALIDATION via Firebase ==========
+ async function validateDeviceId(deviceId) {
+ if (!fbDb) initFirebase();
+ try {
+ const doc = await fbDb.collection('keys').doc(deviceId).get();
+ if (!doc.exists) return { valid: false, reason: 'Device ID is not Registered ❌' };
+ const data = doc.data();
+ if (data.status === 'expired' || (data.expiresAt && Date.now() > data.expiresAt)) {
+ return { valid: false, reason: 'DEVICE EXPIRED ⛔ Contact admin!' };
+ }
+ if (data.active === false) {
+ return { valid: false, reason: 'DEVICE DEACTIVATED 🚫 Contact admin!' };
+ }
+ return { valid: true };
+ } catch(e) {
+ return { valid: false, reason: 'CONNECTION ERROR. RETRY! 🔴' };
+ }
+ }
+ window.onload = () => {
+ // Always show step1 first
+ document.getElementById('step1').style.display = 'block';
+ document.getElementById('step2').style.display = 'none';
+ // Generate & show Device ID immediately — no Firebase needed for this
+ const myId = generateDeviceId();
+ document.getElementById('deviceIdBox').innerText = myId;
+ // Load Firebase in background for validation later
+ loadFirebase(() => { initFirebase(); });
+ };
+ async function startSystem() {
+ const deviceId = document.getElementById('keyIn').value.trim().toUpperCase();
+ const errEl = document.getElementById('err');
+ const loadEl = document.getElementById('loadingMsg');
+ errEl.innerText = '';
+ if (!deviceId) { errEl.innerText = 'DEVICE ID NOT FOUND!'; return; }
+ loadEl.style.display = 'block';
+ document.querySelectorAll('.btn-main').forEach(b => b.disabled = true);
+ const result = await validateDeviceId(deviceId);
+ loadEl.style.display = 'none';
+ document.querySelectorAll('.btn-main').forEach(b => b.disabled = false);
+ if (result.valid) {
+ localStorage.setItem('NEXUS_DEVICE_ID', deviceId);
+ document.getElementById('loginPage').classList.add('hidden');
+ document.getElementById('appPage').classList.remove('hidden');
+ history30 = []; history60 = [];
+ runEngine(); startTimers();
+ } else {
+ errEl.innerText = result.reason;
+ }
+ }
+ function logout() { 
+ localStorage.removeItem('MAFIA_DEVICE_ID'); 
+ location.reload(); 
+ }
+ // ========== TAB SWITCHING ==========
+ function switchTab(tab) {
+ currentTab = tab;
+ // Update UI
+ document.getElementById('tab30').classList.toggle('active', tab === '30');
+ document.getElementById('tab60').classList.toggle('active', tab === '60');
+ // Update display based on selected tab
+ if (tab === '30') {
+ if (state30.savedPred) {
+ document.getElementById('pRes').innerText = state30.savedPred;
+ document.getElementById('pOpps').innerHTML = '🎰 JACKPOT: ' + (state30.savedSame?.join(', ') || '--');
+ document.getElementById('pID').innerText = "PERIOD: " + (state30.lastId ? (BigInt(state30.lastId) + 1n).toString().slice(-8) : '---');
+ }
+ // Show 30s history
+ updateHistoryTable(history30);
+ } else {
+ if (state60.savedPred) {
+ document.getElementById('pRes').innerText = state60.savedPred;
+ document.getElementById('pOpps').innerHTML = '🎰 JACKPOT: ' + (state60.savedSame?.join(', ') || '--');
+ document.getElementById('pID').innerText = "PERIOD: " + (state60.lastId ? (BigInt(state60.lastId) + 1n).toString().slice(-8) : '---');
+ }
+ // Show 60s history
+ updateHistoryTable(history60);
+ }
+ }
+ function updateHistoryTable(history) {
+ const tbody = document.getElementById('logs');
+ tbody.innerHTML = '';
+ // Show last 15 entries
+ history.slice(0, 15).forEach(item => {
+ const statusIcon = item.isWin ? '🐯' : '🖤';
+ const jackpotIcon = item.isJackpot ? ' 🎰' : '';
+ const statusText = item.isWin ? 'WIN' : 'LOSS';
+ const row = `<tr>
+ <td>${item.period}</td>
+ <td>${item.pred}</td>
+ <td>${item.num}${item.isJackpot ? ' 🎰' : ''}</td>
+ <td class="${item.isWin?'win':'loss'}">${statusIcon} ${statusText}${jackpotIcon}</td>
+ </tr>`;
+ tbody.innerHTML += row;
+ });
+ }
+ // ========== ENGINE ==========
+ async function runEngine() {
+ await fetchData();
+ setInterval(fetchData, 2000);
+ }
+ async function fetchData() {
+ try {
+ // Always fetch both
+ const [res30, res60] = await Promise.all([
+ fetch('https://draw.ar-lottery01.com/WinGo/WinGo_30S/GetHistoryIssuePage.json?t=' + Date.now()),
+ fetch('https://draw.ar-lottery01.com/WinGo/WinGo_1M/GetHistoryIssuePage.json?t=' + Date.now())
+ ]);
+ const json30 = await res30.json();
+ const json60 = await res60.json();
+ if (json30?.data?.list) process30(json30.data.list);
+ if (json60?.data?.list) process60(json60.data.list);
+ } catch(e) { /* silent */ }
+ }
+ function process30(list) {
+ const latest = list[0];
+ if (!latest) return;
+ // Prediction logic (same as original)
+ const last5 = list.slice(0,5).map(x => parseInt(x.number) >= 5 ? "BIG" : "SMALL");
+ const nextPred = last5.filter(x => x === "BIG").length > 2 ? "BIG" : "SMALL";
+ // Check for new result
+ if (state30.lastId && state30.lastId !== latest.issueNumber) {
+ const actualNum = parseInt(latest.number);
+ const actualSize = actualNum >= 5 ? "BIG" : "SMALL";
+ const isWin = (state30.savedPred === actualSize);
+ const isJackpot = state30.savedSame.includes(actualNum);
+ // Add to history
+ history30.unshift({
+ period: latest.issueNumber.slice(-3),
+ pred: state30.savedPred,
+ num: actualNum,
+ isWin: isWin,
+ isJackpot: isJackpot
+ });
+ // Keep only last 15
+ if (history30.length > 15) history30.pop();
+ // If 30s tab is active, update display
+ if (currentTab === '30') {
+ updateHistoryTable(history30);
+ // Special confetti for jackpot
+ if (isJackpot) {
+ confetti({ particleCount: 100, spread: 100, origin: { y: 0.5 } });
+ confetti({ particleCount: 100, spread: 100, origin: { y: 0.5, x: 1 } });
+ confetti({ particleCount: 100, spread: 100, origin: { y: 0.5, x: 0 } });
+ } else if (isWin) {
+ confetti({ particleCount: 30, spread: 40, origin: { y: 0.5 } });
+ }
+ }
+ }
+ // Jackpot numbers - generate once per period
+ if (!state30.savedPred || state30.lastId !== latest.issueNumber) {
+ const pool = nextPred === "BIG" ? B_POOL : S_POOL;
+ // Fisher-Yates shuffle for true randomness
+ const shuffled = [...pool];
+ for (let i = shuffled.length - 1; i > 0; i--) {
+ const j = Math.floor(Math.random() * (i + 1));
+ [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+ }
+ const same = shuffled.slice(0, 2);
+ state30.savedPred = nextPred;
+ state30.savedSame = same;
+ }
+ state30.lastId = latest.issueNumber;
+ // Update UI if this tab is active
+ if (currentTab === '30') {
+ document.getElementById('pRes').innerText = state30.savedPred;
+ document.getElementById('pOpps').innerHTML = "🎰 JACKPOT: " + state30.savedSame.join(", ");
+ document.getElementById('pID').innerText = "PERIOD: " + (BigInt(latest.issueNumber) + 1n).toString().slice(-8);
+ }
+ }
+ function process60(list) {
+ const latest = list[0];
+ if (!latest) return;
+ const last5 = list.slice(0,5).map(x => parseInt(x.number) >= 5 ? "BIG" : "SMALL");
+ const nextPred = last5.filter(x => x === "BIG").length > 2 ? "BIG" : "SMALL";
+ if (state60.lastId && state60.lastId !== latest.issueNumber) {
+ const actualNum = parseInt(latest.number);
+ const actualSize = actualNum >= 5 ? "BIG" : "SMALL";
+ const isWin = (state60.savedPred === actualSize);
+ const isJackpot = state60.savedSame.includes(actualNum);
+ history60.unshift({
+ period: latest.issueNumber.slice(-3),
+ pred: state60.savedPred,
+ num: actualNum,
+ isWin: isWin,
+ isJackpot: isJackpot
+ });
+ if (history60.length > 15) history60.pop();
+ if (currentTab === '60') {
+ updateHistoryTable(history60);
+ // Special confetti for jackpot
+ if (isJackpot) {
+ confetti({ particleCount: 100, spread: 100, origin: { y: 0.5 } });
+ confetti({ particleCount: 100, spread: 100, origin: { y: 0.5, x: 1 } });
+ confetti({ particleCount: 100, spread: 100, origin: { y: 0.5, x: 0 } });
+ } else if (isWin) {
+ confetti({ particleCount: 30, spread: 40, origin: { y: 0.5 } });
+ }
+ }
+ }
+ // Jackpot numbers - generate once per period
+ if (!state60.savedPred || state60.lastId !== latest.issueNumber) {
+ const pool = nextPred === "BIG" ? B_POOL : S_POOL;
+ // Fisher-Yates shuffle
+ const shuffled = [...pool];
+ for (let i = shuffled.length - 1; i > 0; i--) {
+ const j = Math.floor(Math.random() * (i + 1));
+ [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+ }
+ const same = shuffled.slice(0, 2);
+ state60.savedPred = nextPred;
+ state60.savedSame = same;
+ }
+ state60.lastId = latest.issueNumber;
+ if (currentTab === '60') {
+ document.getElementById('pRes').innerText = state60.savedPred;
+ document.getElementById('pOpps').innerHTML = "🎰 JACKPOT: " + state60.savedSame.join(", ");
+ document.getElementById('pID').innerText = "PERIOD: " + (BigInt(latest.issueNumber) + 1n).toString().slice(-8);
+ }
+ }
+ // ========== TIMERS ==========
+ function startTimers() {
+ updateTimers();
+ setInterval(updateTimers, 200);
+ }
+ function updateTimers() {
+ const now = new Date();
+ const sec = now.getSeconds();
+ let rem;
+ if (currentTab === '30') {
+ rem = sec < 30 ? 30 - sec : 60 - sec;
+ } else {
+ rem = 60 - sec;
+ }
+ document.getElementById('timer').innerText = "00:" + (rem < 10 ? "0" + rem : rem);
+ }
+ // Add confetti script
+ if (typeof confetti === 'undefined') {
+ const script = document.createElement('script');
+ script.src = 'https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js';
+ document.head.appendChild(script);
+ }
+</script>
+</body>
+</html>                        }
                         updateDisplay(pred, seq);
                     }
                 } else if (lockedPred) {
