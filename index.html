@@ -458,7 +458,7 @@
         const deviceId = getOrCreateDeviceId();
         if (document.getElementById('deviceIdDisplay')) document.getElementById('deviceIdDisplay').innerText = deviceId;
 
-        let isLoggedIn = localStorage.getItem('poscus_auth') === 'true';
+        let isLoggedIn = false;  // Auto-login disabled — always show login
         let selectedPlatform = localStorage.getItem('poscus_selected_platform') || null;
 
         const loginScreen = document.getElementById('loginScreen');
@@ -943,9 +943,7 @@
         }
 
         // Initial route based on saved state
-        if (isLoggedIn && selectedPlatform) { startKeyValidation(); showMainApp(); }
-        else if (isLoggedIn) { startKeyValidation(); showPlatformSelection(); }
-        else showLogin();
+        showLogin(); // Always show login on app open
     </script>
 </body>
 </html>
