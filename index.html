@@ -513,6 +513,10 @@
             localStorage.removeItem('poscus_active_key');
             isLoggedIn = false;
             selectedPlatform = null;
+            // Clear history from memory on logout
+            gameHistory = []; winStreak = 0; lossStreak = 0;
+            engineStats = { BIG:{wins:0,losses:0}, SMALL:{wins:0,losses:0} };
+            lockedPeriod = null; lockedPred = null;
             showLogin();
             document.getElementById('accessPassword').value = '';
             // stop intervals to avoid background updates
@@ -620,6 +624,10 @@
                 localStorage.setItem('poscus_auth', 'true');
                 localStorage.setItem('poscus_active_key', keyInput);
                 isLoggedIn = true;
+                // Reset in-memory history for this fresh login session
+                gameHistory = []; winStreak = 0; lossStreak = 0;
+                engineStats = { BIG:{wins:0,losses:0}, SMALL:{wins:0,losses:0} };
+                lockedPeriod = null; lockedPred = null;
                 startKeyValidation(); // ← Begin background key monitoring
                 showPlatformSelection();
 
@@ -777,13 +785,10 @@
             };
         }
 
-        // ── Clear old history once ─────────────────────────────────────────
-        const _HV = 'rules_v12';
-        if (localStorage.getItem('tx_history_version') !== _HV) {
-            localStorage.removeItem('tx_history_pro');
-            localStorage.setItem('tx_history_version', _HV);
-        }
-        let gameHistory = JSON.parse(localStorage.getItem('tx_history_pro')) || [];
+        // ── History is per-key: new login = new fresh history ─────────────
+        const _activeKey = localStorage.getItem('poscus_active_key') || 'guest';
+        const _HISTORY_KEY = `tx_history_${_activeKey}`;
+        let gameHistory = []; // Session-only: always fresh on app open
         let lockedPeriod = null;   // Period lock — one prediction per period
         let lockedPred   = null;
         let winStreak = 0, lossStreak = 0;
@@ -887,7 +892,7 @@
 
         function saveAndRefresh() {
             if (gameHistory.length > 50) gameHistory = gameHistory.slice(0, 50);
-            localStorage.setItem('tx_history_pro', JSON.stringify(gameHistory));
+            // History is session-only — not saved to localStorage
             updateUI();
         }
 
@@ -914,7 +919,7 @@
             if (confirm("Clear history?")) { 
                 gameHistory = []; winStreak = 0; lossStreak = 0; 
                 engineStats = { BIG:{wins:0,losses:0}, SMALL:{wins:0,losses:0} }; 
-                localStorage.setItem('tx_history_pro', '[]'); 
+                // Session-only — nothing to clear in localStorage 
                 updateUI(); 
             } 
         };
