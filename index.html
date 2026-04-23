@@ -4,665 +4,943 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>POSCUS AI · SURE SHOT AI PRO | Dragon Neural Gateway</title>
+    
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=El+Messiri:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
+    
     <style>
+        /* ===== original dashboard styles (kept intact) ===== */
         :root {
             --bg-primary: #ffffff;
             --bg-secondary: #f8f9fa;
+            --bg-tertiary: #f1f3f5;
             --text-primary: #0f172a;
             --text-secondary: #475569;
             --accent-primary: #7c3aed;
+            --accent-secondary: #a78bfa;
             --card-border-color: #e2e8f0;
-            --shadow-color: rgba(15,23,42,0.08);
-            --shadow-accent-glow: rgba(124,58,237,0.15);
+            --shadow-color: rgba(15, 23, 42, 0.08);
+            --shadow-accent-glow: rgba(124, 58, 237, 0.15);
             --win-color: #10b981;
             --loss-color: #ef4444;
+            --jack-win-color: #f59e0b;
             --pending-color: #f97316;
+            --color-win-color: #3b82f6;
+            --size-win-color: #8b5cf6;
             --gradient-primary: linear-gradient(135deg, #7c3aed 0%, #a78bfa 100%);
+            --gradient-secondary: linear-gradient(135deg, #0ea5e9 0%, #3b82f6 100%);
         }
-        * { font-family: 'El Messiri', sans-serif; letter-spacing: -0.01em; -webkit-tap-highlight-color: transparent; }
-        body { background: var(--bg-secondary); color: var(--text-primary); margin: 0; padding: 0; overflow-x: hidden; min-height: 100vh; background-image: radial-gradient(circle at 10% 20%, rgba(124,58,237,0.05) 0%, transparent 20%), radial-gradient(circle at 90% 80%, rgba(167,139,250,0.05) 0%, transparent 20%); }
-        @media (max-width:640px) { body { font-size:14px; } .navigation { width:96%; height:65px; bottom:12px; } .card { border-radius:1rem; } }
-        .card { transition: all 0.3s ease; background: var(--bg-primary); border-radius: 1.25rem; box-shadow: 0 4px 6px var(--shadow-color), 0 1px 3px rgba(0,0,0,0.05); border: 1px solid var(--card-border-color); overflow: hidden; position: relative; backdrop-filter: blur(10px); }
-        .card::before { content:''; position:absolute; top:0; left:0; right:0; height:4px; background:var(--gradient-primary); opacity:0; transition:opacity 0.3s ease; }
-        .card:hover { transform: translateY(-4px); box-shadow: 0 12px 24px var(--shadow-accent-glow), 0 6px 12px var(--shadow-color); border-color: rgba(124,58,237,0.2); }
-        .card:hover::before { opacity:1; }
-        .gradient-bg { background: var(--gradient-primary); position: relative; overflow: hidden; }
-        .gradient-bg::after { content:''; position:absolute; top:-50%; left:-50%; width:200%; height:200%; background: radial-gradient(circle, rgba(255,255,255,0.1) 1px, transparent 1px); background-size:30px 30px; opacity:0.3; }
-        #appHeaderSvg text { font-family:'El Messiri',sans-serif; text-anchor:middle; dominant-baseline:middle; animation:premiumStroke 6s infinite alternate; stroke-width:1; stroke:var(--accent-primary); font-size:clamp(60px,8vw,100px); fill:rgba(15,23,42,0); font-weight:700; filter:drop-shadow(0 4px 6px rgba(0,0,0,0.1)); }
-        @keyframes premiumStroke { 0% { fill:rgba(124,58,237,0); stroke-dashoffset:25%; stroke-dasharray:0 50%; stroke-width:1.5; } 70% { fill:rgba(124,58,237,0.3); stroke-dashoffset:-25%; stroke-dasharray:50% 0; stroke-width:0.5; } 100% { fill:var(--text-primary); stroke-dashoffset:-25%; stroke-dasharray:50% 0; stroke-width:0; } }
-        .navigation { position:fixed; bottom:20px; left:50%; transform:translateX(-50%); width:94%; max-width:420px; height:70px; background:rgba(255,255,255,0.98); backdrop-filter:blur(20px) saturate(180%); border-radius:1.5rem; box-shadow:0 10px 40px rgba(15,23,42,0.12),0 4px 12px rgba(124,58,237,0.08),inset 0 1px 0 rgba(255,255,255,0.6); display:flex; justify-content:space-around; align-items:center; z-index:1000; border:1px solid rgba(255,255,255,0.3); padding:0 8px; }
-        .nav-link { display:flex; flex-direction:column; align-items:center; justify-content:center; color:#94a3b8; text-decoration:none; transition:all 0.3s ease; flex:1; height:100%; position:relative; gap:4px; border-radius:14px; margin:6px 4px; }
-        .nav-icon-wrap { width:36px; height:36px; display:flex; align-items:center; justify-content:center; border-radius:10px; transition:all 0.3s ease; }
-        .nav-link.active .nav-icon-wrap { background:linear-gradient(135deg,#7c3aed,#a78bfa); box-shadow:0 4px 12px rgba(124,58,237,0.35); }
-        .nav-link.active { color:#7c3aed; }
-        .nav-link i { font-size:1.1rem; transition:all 0.3s ease; }
-        .nav-link.active i { color:#ffffff; }
-        .nav-link span { font-size:0.6rem; font-weight:700; text-transform:uppercase; letter-spacing:0.4px; color:#94a3b8; }
-        .nav-link.active span { color:#7c3aed; }
-        .content-section { display:none; padding:1rem; padding-bottom:100px; animation:premiumFadeIn 0.4s ease-out forwards; opacity:0; transform:translateY(10px); }
-        .content-section.active { display:block; }
-        @keyframes premiumFadeIn { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:translateY(0); } }
-        .history-item { border-left:5px solid var(--card-border-color); margin-bottom:1rem; background:white; padding:1rem; border-radius:0.875rem; display:flex; justify-content:space-between; align-items:flex-start; transition:all 0.2s ease; position:relative; overflow:hidden; }
-        @media (max-width:640px) { .history-item { flex-direction:column; gap:0.75rem; } }
-        .history-item.win { border-left-color:var(--win-color); background:linear-gradient(to right, rgba(16,185,129,0.02), white); }
-        .history-item.loss { border-left-color:var(--loss-color); background:linear-gradient(to right, rgba(239,68,68,0.02), white); }
-        .history-item.pending { border-left-color:var(--pending-color); border-left-style:dashed; }
-        .status-badge { font-size:0.65rem; font-weight:700; padding:4px 10px; border-radius:20px; text-transform:uppercase; letter-spacing:0.5px; white-space:nowrap; }
-        .probability-card { background:linear-gradient(145deg,#ffffff,#f8fafc); border-radius:1rem; padding:1rem; margin:0.75rem 0; box-shadow:0 4px 12px rgba(15,23,42,0.05),inset 0 1px 0 rgba(255,255,255,0.8); border:1px solid rgba(226,232,240,0.8); position:relative; overflow:hidden; }
-        .probability-card::before { content:''; position:absolute; top:0; left:0; right:0; height:4px; background:var(--gradient-primary); }
-        .probability-bar { height:10px; border-radius:6px; overflow:hidden; background:#e2e8f0; margin:0.75rem 0; }
-        .probability-fill { height:100%; transition:width 0.6s cubic-bezier(0.34,1.56,0.64,1); }
-        .method-indicator { display:inline-block; padding:4px 10px; border-radius:12px; font-size:0.7rem; font-weight:700; margin-right:6px; margin-bottom:6px; }
-        ::-webkit-scrollbar { width:6px; }
-        ::-webkit-scrollbar-track { background:rgba(15,23,42,0.05); border-radius:3px; }
-        ::-webkit-scrollbar-thumb { background:var(--accent-primary); border-radius:3px; }
-        .database-animation { position:relative; display:inline-flex; align-items:center; justify-content:center; }
-        .data-stream { position:absolute; width:100%; height:100%; border-radius:50%; background:conic-gradient(from 0deg,#7c3aed,#a78bfa,#7c3aed); animation:spinData 3s linear infinite; opacity:0.2; }
-        @keyframes spinData { 0% { transform:rotate(0deg); } 100% { transform:rotate(360deg); } }
-        .pulse-db { animation:pulseDb 2s infinite ease-in-out; }
-        @keyframes pulseDb { 0%,100% { transform:scale(1); opacity:0.7; } 50% { transform:scale(1.05); opacity:1; } }
-        .floating-dot { position:absolute; width:6px; height:6px; background:#a78bfa; border-radius:50%; animation:floatData 2s infinite alternate; }
-        @keyframes floatData { 0% { transform:translateY(0); opacity:0; } 100% { transform:translateY(-20px); opacity:1; } }
-        .game-btn { transition:all 0.3s cubic-bezier(0.34,1.56,0.64,1); background:linear-gradient(145deg,#ffffff,#f1f5f9); border:1px solid rgba(124,58,237,0.2); }
-        .game-btn:hover { transform:translateY(-6px) scale(1.02); box-shadow:0 20px 30px -12px rgba(124,58,237,0.35); border-color:#7c3aed; }
+
+        * {
+            font-family: 'El Messiri', sans-serif;
+            letter-spacing: -0.01em;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            margin: 0;
+            padding: 0;
+            overflow-x: hidden;
+            min-height: 100vh;
+            background-image: 
+                radial-gradient(circle at 10% 20%, rgba(124, 58, 237, 0.05) 0%, transparent 20%),
+                radial-gradient(circle at 90% 80%, rgba(167, 139, 250, 0.05) 0%, transparent 20%);
+        }
+
+        @media (max-width: 640px) {
+            body { font-size: 14px; }
+            .navigation { width: 96%; height: 65px; bottom: 12px; }
+            .card { border-radius: 1rem; }
+        }
+
+        .card {
+            transition: all 0.3s ease;
+            background: var(--bg-primary);
+            border-radius: 1.25rem;
+            box-shadow: 0 4px 6px var(--shadow-color), 0 1px 3px rgba(0, 0, 0, 0.05);
+            border: 1px solid var(--card-border-color);
+            overflow: hidden;
+            position: relative;
+            backdrop-filter: blur(10px);
+        }
+        
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: var(--gradient-primary);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        
+        .card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 24px var(--shadow-accent-glow), 0 6px 12px var(--shadow-color);
+            border-color: rgba(124, 58, 237, 0.2);
+        }
+        
+        .card:hover::before { opacity: 1; }
+
+        .gradient-bg {
+            background: var(--gradient-primary);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .gradient-bg::after {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 1px, transparent 1px);
+            background-size: 30px 30px;
+            opacity: 0.3;
+        }
+
+        #appHeaderSvg text {
+            font-family: 'El Messiri', sans-serif;
+            text-anchor: middle;
+            dominant-baseline: middle;
+            animation: premiumStroke 6s infinite alternate;
+            stroke-width: 1;
+            stroke: var(--accent-primary);
+            font-size: clamp(60px, 8vw, 100px);
+            fill: rgba(15, 23, 42, 0);
+            font-weight: 700;
+            filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.1));
+        }
+
+        @keyframes premiumStroke {
+            0% { fill: rgba(124, 58, 237, 0); stroke-dashoffset: 25%; stroke-dasharray: 0 50%; stroke-width: 1.5; }
+            70% { fill: rgba(124, 58, 237, 0.3); stroke-dashoffset: -25%; stroke-dasharray: 50% 0; stroke-width: 0.5; }
+            100% { fill: var(--text-primary); stroke-dashoffset: -25%; stroke-dasharray: 50% 0; stroke-width: 0; }
+        }
+
+        .navigation {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 94%;
+            max-width: 420px;
+            height: 70px;
+            background: rgba(255, 255, 255, 0.98);
+            backdrop-filter: blur(20px) saturate(180%);
+            border-radius: 1.5rem;
+            box-shadow: 0 10px 40px rgba(15, 23, 42, 0.12), 0 4px 12px rgba(124, 58, 237, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.6);
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            z-index: 1000;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            padding: 0 8px;
+        }
+
+        .nav-link {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: #94a3b8;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            flex: 1;
+            height: 100%;
+            position: relative;
+            gap: 4px;
+            border-radius: 14px;
+            margin: 6px 4px;
+        }
+
+        .nav-icon-wrap {
+            width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+        }
+
+        .nav-link.active .nav-icon-wrap {
+            background: linear-gradient(135deg, #7c3aed, #a78bfa);
+            box-shadow: 0 4px 12px rgba(124, 58, 237, 0.35);
+        }
+
+        .nav-link.active {
+            color: #7c3aed;
+        }
+
+        .nav-link i {
+            font-size: 1.1rem;
+            transition: all 0.3s ease;
+        }
+
+        .nav-link.active i {
+            color: #ffffff;
+            filter: none;
+        }
+
+        .nav-link span {
+            font-size: 0.6rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.4px;
+            transition: all 0.3s ease;
+            color: #94a3b8;
+        }
+
+        .nav-link.active span {
+            color: #7c3aed;
+        }
+
+        .content-section {
+            display: none;
+            padding: 1rem;
+            padding-bottom: 100px;
+            animation: premiumFadeIn 0.4s ease-out forwards;
+            opacity: 0;
+            transform: translateY(10px);
+        }
+        .content-section.active { display: block; }
+        @keyframes premiumFadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        .history-item {
+            border-left: 5px solid var(--card-border-color);
+            margin-bottom: 1rem;
+            background: white;
+            padding: 1rem;
+            border-radius: 0.875rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            transition: all 0.2s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        @media (max-width: 640px) { .history-item { flex-direction: column; gap: 0.75rem; } }
+        .history-item.win { border-left-color: var(--win-color); background: linear-gradient(to right, rgba(16, 185, 129, 0.02), white); }
+        .history-item.loss { border-left-color: var(--loss-color); background: linear-gradient(to right, rgba(239, 68, 68, 0.02), white); }
+        .history-item.pending { border-left-color: var(--pending-color); border-left-style: dashed; background: linear-gradient(to right, rgba(249, 115, 22, 0.02), white); }
+        
+        .status-badge { font-size: 0.65rem; font-weight: 700; padding: 4px 10px; border-radius: 20px; text-transform: uppercase; letter-spacing: 0.5px; white-space: nowrap; }
+        .probability-card {
+            background: linear-gradient(145deg, #ffffff, #f8fafc);
+            border-radius: 1rem;
+            padding: 1rem;
+            margin: 0.75rem 0;
+            box-shadow: 0 4px 12px rgba(15, 23, 42, 0.05), inset 0 1px 0 rgba(255, 255, 255, 0.8);
+            border: 1px solid rgba(226, 232, 240, 0.8);
+            position: relative;
+            overflow: hidden;
+        }
+        .probability-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 4px; background: var(--gradient-primary); }
+        .probability-bar { height: 10px; border-radius: 6px; overflow: hidden; background: #e2e8f0; margin: 0.75rem 0; box-shadow: inset 0 2px 4px rgba(15, 23, 42, 0.05); }
+        .probability-fill { height: 100%; transition: width 0.6s cubic-bezier(0.34, 1.56, 0.64, 1); }
+        .method-indicator { display: inline-block; padding: 4px 10px; border-radius: 12px; font-size: 0.7rem; font-weight: 700; margin-right: 6px; margin-bottom: 6px; backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.2); }
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: rgba(15, 23, 42, 0.05); border-radius: 3px; }
+        ::-webkit-scrollbar-thumb { background: var(--accent-primary); border-radius: 3px; }
+
+        /* Additional styles for login & platform screens */
+        .database-animation { position: relative; display: inline-flex; align-items: center; justify-content: center; }
+        .data-stream { position: absolute; width: 100%; height: 100%; border-radius: 50%; background: conic-gradient(from 0deg, #7c3aed, #a78bfa, #7c3aed); animation: spinData 3s linear infinite; opacity: 0.2; }
+        @keyframes spinData { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        .pulse-db { animation: pulseDb 2s infinite ease-in-out; }
+        @keyframes pulseDb { 0% { transform: scale(1); opacity: 0.7; } 50% { transform: scale(1.05); opacity: 1; } 100% { transform: scale(1); opacity: 0.7; } }
+        .floating-dot { position: absolute; width: 6px; height: 6px; background: #a78bfa; border-radius: 50%; animation: floatData 2s infinite alternate; }
+        @keyframes floatData { 0% { transform: translateY(0px); opacity: 0; } 100% { transform: translateY(-20px); opacity: 1; } }
+        
+        .game-btn {
+            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+            background: linear-gradient(145deg, #ffffff, #f1f5f9);
+            border: 1px solid rgba(124, 58, 237, 0.2);
+        }
+        .game-btn:hover { transform: translateY(-6px) scale(1.02); box-shadow: 0 20px 30px -12px rgba(124, 58, 237, 0.35); border-color: #7c3aed; background: white; }
     </style>
 </head>
 <body>
 
-<!-- LOGIN SCREEN -->
-<div id="loginScreen" class="min-h-screen flex items-center justify-center px-4 py-8" style="background:radial-gradient(circle at 10% 30%, rgba(124,58,237,0.08), transparent);">
-    <div class="w-full max-w-md">
-        <div class="text-center mb-8">
-            <div class="database-animation inline-block mb-3 relative">
-                <div class="data-stream"></div>
-                <i class="fas fa-database text-5xl text-purple-600 pulse-db relative z-10"></i>
-                <div class="floating-dot" style="top:-5px;right:-8px;"></div>
-                <div class="floating-dot" style="bottom:0;left:-10px;animation-delay:0.5s;"></div>
+    <!-- ==================== LOGIN SCREEN ==================== -->
+    <div id="loginScreen" class="min-h-screen flex items-center justify-center px-4 py-8" style="background: radial-gradient(circle at 10% 30%, rgba(124,58,237,0.08), transparent);">
+        <div class="w-full max-w-md">
+            <div class="text-center mb-8">
+                <div class="database-animation inline-block mb-3 relative">
+                    <div class="data-stream"></div>
+                    <i class="fas fa-database text-5xl text-purple-600 pulse-db relative z-10"></i>
+                    <div class="floating-dot" style="top: -5px; right: -8px;"></div>
+                    <div class="floating-dot" style="bottom: 0px; left: -10px; animation-delay: 0.5s;"></div>
+                </div>
+                <h1 class="text-5xl font-extrabold bg-gradient-to-r from-purple-700 via-indigo-600 to-purple-500 bg-clip-text text-transparent animate__animated animate__fadeInDown">POSCUS AI</h1>
+                <p class="text-gray-500 mt-2 text-sm flex items-center justify-center gap-2"><i class="fas fa-shield-alt text-purple-500"></i> Neural Secure Gateway <i class="fas fa-microchip text-purple-500"></i></p>
+                <div class="flex justify-center gap-3 mt-3">
+                    <i class="fas fa-chart-line text-purple-300 animate-pulse"></i>
+                    <i class="fas fa-cloud-upload-alt text-purple-400 animate-bounce" style="animation-duration: 2s;"></i>
+                    <i class="fas fa-database text-purple-500 animate-pulse"></i>
+                </div>
             </div>
-            <h1 class="text-5xl font-extrabold bg-gradient-to-r from-purple-700 via-indigo-600 to-purple-500 bg-clip-text text-transparent animate__animated animate__fadeInDown">POSCUS AI</h1>
-            <p class="text-gray-500 mt-2 text-sm flex items-center justify-center gap-2"><i class="fas fa-shield-alt text-purple-500"></i> Neural Secure Gateway <i class="fas fa-microchip text-purple-500"></i></p>
-            <div class="flex justify-center gap-3 mt-3">
-                <i class="fas fa-chart-line text-purple-300 animate-pulse"></i>
-                <i class="fas fa-cloud-upload-alt text-purple-400 animate-bounce" style="animation-duration:2s;"></i>
-                <i class="fas fa-database text-purple-500 animate-pulse"></i>
+
+            <div class="card p-6 mb-6 backdrop-blur-sm bg-white/90">
+                <div class="flex items-center gap-3 mb-3">
+                    <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-100 to-indigo-100 flex items-center justify-center"><i class="fas fa-fingerprint text-purple-600 text-xl"></i></div>
+                    <div><p class="text-xs text-gray-400 font-bold uppercase">Secure Device Identity</p><p class="text-sm font-mono font-bold text-purple-700" id="deviceIdDisplay">-- generating --</p></div>
+                </div>
+                <div class="border-t border-dashed border-gray-200 pt-3 mt-1 text-xs text-gray-500 flex items-center gap-1"><i class="fas fa-microchip"></i> Hardware anchored · TEE protected</div>
             </div>
-        </div>
-        <div class="card p-6 mb-6">
-            <div class="flex items-center gap-3 mb-3">
-                <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-100 to-indigo-100 flex items-center justify-center"><i class="fas fa-fingerprint text-purple-600 text-xl"></i></div>
-                <div><p class="text-xs text-gray-400 font-bold uppercase">Secure Device Identity</p><p class="text-sm font-mono font-bold text-purple-700" id="deviceIdDisplay">-- generating --</p></div>
+
+            <div class="card p-6 shadow-2xl">
+                <div class="flex items-center gap-2 mb-5"><i class="fas fa-lock text-purple-500"></i><span class="font-bold text-gray-700">Verify Access Credentials</span></div>
+                <input type="text" id="accessPassword" placeholder="Enter your access key" class="w-full p-3 border border-purple-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-400 bg-gray-50">
+                <p id="loginMsg" class="text-xs text-gray-400 mt-2 flex items-center gap-1">Enter the key provided by admin</p>
+                <button id="loginBtn" class="w-full mt-5 gradient-bg text-white py-3 rounded-xl font-bold shadow-lg hover:shadow-xl transition-all flex items-center justify-center gap-2"><i class="fas fa-arrow-right-to-bracket"></i> Unlock Neural Engine</button>
             </div>
-            <div class="border-t border-dashed border-gray-200 pt-3 mt-1 text-xs text-gray-500 flex items-center gap-1"><i class="fas fa-microchip"></i> Hardware anchored · TEE protected</div>
-        </div>
-        <div class="card p-6 shadow-2xl">
-            <div class="flex items-center gap-2 mb-5"><i class="fas fa-lock text-purple-500"></i><span class="font-bold text-gray-700">Verify Access Credentials</span></div>
-            <input type="text" id="accessPassword" placeholder="Enter your access key" class="w-full p-3 border border-purple-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-400 bg-gray-50">
-            <p id="loginMsg" class="text-xs text-gray-400 mt-2">Enter the key provided by admin</p>
-            <button id="loginBtn" class="w-full mt-5 gradient-bg text-white py-3 rounded-xl font-bold shadow-lg hover:shadow-xl transition-all flex items-center justify-center gap-2"><i class="fas fa-arrow-right-to-bracket"></i> Unlock Neural Engine</button>
         </div>
     </div>
-</div>
 
-<!-- PLATFORM SELECTION -->
-<div id="platformScreen" class="min-h-screen px-4 py-6" style="display:none;">
-    <div class="text-center mb-8 animate__animated animate__fadeIn">
-        <div class="inline-flex items-center gap-2 bg-white/70 backdrop-blur px-5 py-2 rounded-full shadow"><i class="fas fa-gamepad text-purple-600"></i><span class="font-bold">Choose Gaming Arena</span></div>
-        <h2 class="text-2xl font-extrabold mt-4 bg-gradient-to-r from-purple-800 to-indigo-700 bg-clip-text text-transparent">SELECT PLATFORM</h2>
-        <p class="text-gray-500 text-sm">Your predictions will be optimized for selected platform</p>
+    <!-- ==================== PLATFORM SELECTION SCREEN ==================== -->
+    <div id="platformScreen" class="min-h-screen px-4 py-6" style="display: none;">
+        <div class="text-center mb-8 animate__animated animate__fadeIn">
+            <div class="inline-flex items-center gap-2 bg-white/70 backdrop-blur px-5 py-2 rounded-full shadow"><i class="fas fa-gamepad text-purple-600"></i><span class="font-bold">Choose Gaming Arena</span><i class="fas fa-joystick text-purple-500"></i></div>
+            <h2 class="text-2xl font-extrabold mt-4 bg-gradient-to-r from-purple-800 to-indigo-700 bg-clip-text text-transparent">SELECT PLATFORM</h2>
+            <p class="text-gray-500 text-sm">Your predictions will be optimized for selected platform</p>
+        </div>
+        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 max-w-5xl mx-auto" id="platformGrid"></div>
+        <div class="mt-8 text-center"><button id="logoutFromPlatform" class="text-sm text-gray-400 hover:text-red-500 transition"><i class="fas fa-power-off"></i> Logout & change device</button></div>
     </div>
-    <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 max-w-5xl mx-auto" id="platformGrid"></div>
-    <div class="mt-8 text-center"><button id="logoutFromPlatform" class="text-sm text-gray-400 hover:text-red-500 transition"><i class="fas fa-power-off"></i> Logout & change device</button></div>
-</div>
 
-<!-- MAIN DASHBOARD -->
-<div id="mainAppContainer" style="display:none;">
-    <header class="pt-6 pb-3 text-center px-2 relative">
-        <div class="absolute top-4 right-4 flex gap-2" style="display:none;">
-            <button id="switchPlatformBtn" class="text-xs bg-white/80 backdrop-blur px-3 py-1.5 rounded-full shadow border border-purple-200 text-purple-700 font-bold"><i class="fas fa-exchange-alt"></i> Switch</button>
-            <button id="logoutMainBtn" class="text-xs bg-white/80 backdrop-blur px-3 py-1.5 rounded-full shadow border border-gray-200 text-gray-600"><i class="fas fa-sign-out-alt"></i> Logout</button>
-        </div>
-        <svg id="appHeaderSvg" viewBox="0 0 800 120" class="w-full max-w-md mx-auto">
-            <text x="50%" y="50%">SURE SHOT AI PRO</text>
-        </svg>
-        <p class="text-sm text-gray-500 mt-2">Dragon Neural Engine v15.0 · Platform: <span id="activePlatformLabel" class="font-bold text-purple-600">--</span></p>
-    </header>
-
-    <main class="max-w-4xl mx-auto px-2">
-
-        <!-- HOME -->
-        <div id="homeSection" class="content-section active">
-
-            <!-- Prediction Card -->
-            <div class="card gradient-bg p-6 text-white mb-6 animate__animated animate__fadeIn relative overflow-hidden">
-                <div class="grid grid-cols-2 gap-4 relative z-10">
-                    <div class="bg-white/20 backdrop-blur-md rounded-xl p-3 text-center">
-                        <p class="text-xs uppercase opacity-90 mb-2 tracking-wider">Next Period</p>
-                        <h2 id="displayPeriod" class="text-2xl font-bold tracking-tighter">-----</h2>
-                    </div>
-                    <div class="bg-white/20 backdrop-blur-md rounded-xl p-3 text-center">
-                        <p class="text-xs uppercase opacity-90 mb-2 tracking-wider">AI Prediction</p>
-                        <h2 id="displayPrediction" class="text-2xl font-bold">ANALYZING</h2>
-                    </div>
-                </div>
-                <div class="mt-4 text-center relative z-10">
-                    <p class="text-xs uppercase font-bold opacity-80 mb-2 tracking-wider">Last 7 Results (Latest → Oldest)</p>
-                    <div id="recentNumbers" class="flex justify-center gap-2 mt-2 flex-wrap"></div>
-                    <div id="trendSummary" class="mt-3 text-sm opacity-90"></div>
-                </div>
+    <!-- ==================== MAIN DASHBOARD (original HTML content) ==================== -->
+    <div id="mainAppContainer" style="display: none;">
+        <header class="pt-6 pb-3 text-center px-2 relative">
+            <div class="absolute top-4 right-4 flex gap-2" style="display:none;">
+                <button id="switchPlatformBtn" class="text-xs bg-white/80 backdrop-blur px-3 py-1.5 rounded-full shadow border border-purple-200 text-purple-700 font-bold flex items-center gap-1"><i class="fas fa-exchange-alt"></i> Switch Platform</button>
+                <button id="logoutMainBtn" class="text-xs bg-white/80 backdrop-blur px-3 py-1.5 rounded-full shadow border border-gray-200 text-gray-600"><i class="fas fa-sign-out-alt"></i> Logout</button>
             </div>
+            <svg id="appHeaderSvg" viewBox="0 0 800 120" class="w-full max-w-md mx-auto">
+                <text x="50%" y="50%">SURE SHOT AI PRO</text>
+            </svg>
+            <p class="text-sm text-text-secondary mt-2">Dragon Neural Engine · BIG/SMALL AI v8.0 | Platform: <span id="activePlatformLabel" class="font-bold text-purple-600">--</span></p>
+        </header>
 
-            <!-- Pattern Matrix -->
-            <div class="card p-5 mb-5">
-                <h3 class="font-bold text-base mb-4 flex items-center gap-2">
-                    <div class="w-9 h-9 gradient-bg rounded-xl flex items-center justify-center text-white shadow"><i class="fas fa-dragon"></i></div>
-                    Dragon Pattern Matrix
-                </h3>
-
-                <div class="mb-4 p-3 rounded-xl bg-gradient-to-r from-purple-50 to-blue-50 border border-purple-200">
-                    <p class="text-xs text-purple-600 font-bold mb-1">ACTIVE PREDICTION MODE</p>
-                    <p id="activePredictionType" class="text-lg font-bold text-purple-700">SIZE ANALYSIS</p>
-                </div>
-
-                <div class="probability-card mb-3">
-                    <div class="flex justify-between text-sm font-bold"><span><i class="fas fa-expand-alt mr-1"></i>BIG Probability</span><span id="bigProbabilityValue">0%</span></div>
-                    <div class="probability-bar"><div id="bigProbabilityBar" class="probability-fill bg-gradient-to-r from-blue-500 to-cyan-400" style="width:0%"></div></div>
-                    <div class="flex justify-between text-sm font-bold"><span><i class="fas fa-compress-alt mr-1"></i>SMALL Probability</span><span id="smallProbabilityValue">0%</span></div>
-                    <div class="probability-bar"><div id="smallProbabilityBar" class="probability-fill bg-gradient-to-r from-purple-500 to-pink-400" style="width:0%"></div></div>
-                </div>
-
-                <div class="grid grid-cols-2 gap-3 mb-4">
-                    <div class="bg-gradient-to-br from-purple-50 to-white p-3 rounded-xl border border-purple-100">
-                        <p class="text-xs text-purple-600 font-bold">SCORE EDGE</p>
-                        <p id="sizeEdgeValue" class="text-2xl font-bold text-purple-700">0</p>
-                        <p id="sizePreference" class="text-xs text-purple-500">Neutral</p>
+        <main class="max-w-4xl mx-auto px-2">
+            <!-- Home Section -->
+            <div id="homeSection" class="content-section active">
+                <div class="card gradient-bg p-6 text-white mb-6 animate__animated animate__fadeIn relative overflow-hidden">
+                    <div class="grid grid-cols-2 gap-4 relative z-10">
+                        <div class="period-box bg-white/20 backdrop-blur-md rounded-xl p-3 text-center">
+                            <p class="text-xs uppercase opacity-90 mb-2 tracking-wider">Current Period</p>
+                            <h2 id="displayPeriod" class="text-2xl font-bold tracking-tighter">-----</h2>
+                        </div>
+                        <div class="period-box bg-white/20 backdrop-blur-md rounded-xl p-3 text-center">
+                            <p class="text-xs uppercase opacity-90 mb-2 tracking-wider">AI Prediction</p>
+                            <h2 id="displayPrediction" class="text-2xl font-bold">ANALYZING</h2>
+                        </div>
                     </div>
-                    <div class="bg-gradient-to-br from-indigo-50 to-white p-3 rounded-xl border border-indigo-100">
-                        <p class="text-xs text-indigo-600 font-bold">PATTERN STRENGTH</p>
-                        <p id="patternStrengthLabel" class="text-lg font-bold text-indigo-700">LOW</p>
+                    <div class="mt-4 text-center relative z-10">
+                        <p class="text-xs uppercase font-bold opacity-80 mb-2 tracking-wider">Recent Numbers Analysis</p>
+                        <div id="recentNumbers" class="flex justify-center gap-2 mt-2"></div>
+                        <div id="methodInfo" class="flex flex-wrap justify-center gap-1 mt-3" style="display:none!important;"></div>
+                        <div id="trendSummary" class="mt-3 text-sm opacity-90"></div>
                     </div>
                 </div>
 
-                <div class="mt-3">
-                    <p class="text-xs font-bold text-gray-400 uppercase mb-2 tracking-wider flex items-center gap-1"><i class="fas fa-crown text-amber-500"></i> Detected Patterns</p>
-                    <div id="methodInfo" class="flex flex-wrap gap-1"></div>
-                </div>
+                <div class="card p-5 mb-5">
+                    <h3 class="font-bold text-base mb-4 flex items-center gap-2">
+                        <div class="w-9 h-9 gradient-bg rounded-xl flex items-center justify-center text-white shadow"><i class="fas fa-dragon"></i></div>
+                        <span>Dragon Pattern Matrix</span>
+                    </h3>
+                    <div id="predictionTypeCard" class="mb-4 p-3 rounded-xl bg-gradient-to-r from-purple-50 to-blue-50 border border-purple-200">
+                        <p class="text-xs text-purple-600 font-bold mb-1">ACTIVE PREDICTION MODE</p>
+                        <p id="activePredictionType" class="text-lg font-bold text-purple-700">SIZE ANALYSIS</p>
+                    </div>
+                    
+                    <div class="probability-card mb-3">
+                        <div class="probability-label flex justify-between"><span><i class="fas fa-expand-alt"></i> BIG Probability</span><span id="bigProbabilityValue" class="font-bold">0%</span></div>
+                        <div class="probability-bar"><div id="bigProbabilityBar" class="probability-fill bg-gradient-to-r from-blue-500 to-cyan-400" style="width: 0%"></div></div>
+                        <div class="probability-label flex justify-between"><span><i class="fas fa-compress-alt"></i> SMALL Probability</span><span id="smallProbabilityValue" class="font-bold">0%</span></div>
+                        <div class="probability-bar"><div id="smallProbabilityBar" class="probability-fill bg-gradient-to-r from-purple-500 to-pink-400" style="width: 0%"></div></div>
+                    </div>
 
-                <div class="mt-4 p-4 bg-gradient-to-r from-purple-50 via-white to-blue-50 rounded-xl border border-purple-200">
-                    <div class="flex justify-between items-center">
-                        <div><p class="text-xs font-bold text-purple-600 uppercase mb-1">🎯 PRO RECOMMENDATION</p><p id="recommendedPrediction" class="text-lg font-bold">Analyzing...</p></div>
-                        <div class="text-right"><p class="text-xs font-bold text-gray-400 mb-1">Confidence</p><p id="recommendedConfidenceValue" class="text-2xl font-bold text-green-500">0%</p></div>
+                    <div class="grid grid-cols-2 gap-3 mb-4">
+                        <div class="bg-gradient-to-br from-purple-50 to-white p-3 rounded-xl border border-purple-100">
+                            <p class="text-xs text-purple-600 font-bold">SCORE EDGE</p>
+                            <p id="sizeEdgeValue" class="text-2xl font-bold text-purple-700">0%</p>
+                            <p id="sizePreference" class="text-xs text-purple-500">Neutral</p>
+                        </div>
+                        <div class="bg-gradient-to-br from-indigo-50 to-white p-3 rounded-xl border border-indigo-100">
+                            <p class="text-xs text-indigo-600 font-bold">PATTERN STRENGTH</p>
+                            <p id="patternStrengthLabel" class="text-lg font-bold text-indigo-700">LOW</p>
+                        </div>
+                    </div>
+
+                    <div class="mt-4">
+                        <p class="text-sm font-bold text-text-secondary uppercase mb-2 tracking-wider flex items-center gap-1"><i class="fas fa-crown text-amber-500"></i> Detected Patterns</p>
+                        <div id="modelPerformance" class="space-y-2"></div>
+                    </div>
+
+                    <div class="mt-4 p-4 bg-gradient-to-r from-purple-50 via-white to-blue-50 rounded-xl border border-purple-200 shadow-inner">
+                        <div class="flex justify-between items-center">
+                            <div><p class="text-xs font-bold text-purple-600 uppercase mb-1 tracking-wider">🎯 PRO RECOMMENDATION</p><p id="recommendedPrediction" class="text-lg font-bold text-text-primary">Analyzing patterns</p></div>
+                            <div class="text-right"><p class="text-xs font-bold text-text-secondary mb-1">Confidence</p><p id="recommendedConfidenceValue" class="text-2xl font-bold text-green-500">0%</p></div>
+                        </div>
                     </div>
                 </div>
+
+                <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-5">
+                    <div class="card p-4 text-center"><div class="w-10 h-10 gradient-bg rounded-lg flex items-center justify-center text-white mx-auto mb-2 shadow"><i class="fas fa-bullseye text-sm"></i></div><p class="text-xs text-text-secondary uppercase font-bold mb-1">Accuracy</p><p id="statAccuracy" class="text-xl font-bold text-accent-primary">0%</p></div>
+                    <div class="card p-4 text-center"><div class="w-10 h-10 bg-gradient-to-br from-green-500 to-emerald-400 rounded-lg flex items-center justify-center text-white mx-auto mb-2 shadow"><i class="fas fa-trophy text-sm"></i></div><p class="text-xs text-text-secondary uppercase font-bold mb-1">Wins</p><p id="statWins" class="text-xl font-bold text-win-color">0</p></div>
+                    <div class="card p-4 text-center"><div class="w-10 h-10 bg-gradient-to-br from-red-500 to-pink-400 rounded-lg flex items-center justify-center text-white mx-auto mb-2 shadow"><i class="fas fa-exclamation-triangle text-sm"></i></div><p class="text-xs text-text-secondary uppercase font-bold mb-1">Losses</p><p id="statLosses" class="text-xl font-bold text-loss-color">0</p></div>
+                    <div class="card p-4 text-center"><div class="w-10 h-10 bg-gradient-to-br from-amber-500 to-orange-400 rounded-lg flex items-center justify-center text-white mx-auto mb-2 shadow"><i class="fas fa-fire text-sm"></i></div><p class="text-xs text-text-secondary uppercase font-bold mb-1">Streak</p><div id="streakInfo" class="flex items-center justify-center gap-1"><div class="w-2 h-2 rounded-full bg-gray-300"></div><p class="text-base font-bold">-</p></div></div>
+                </div>
             </div>
 
-            <!-- Stats Row -->
-            <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-5">
-                <div class="card p-4 text-center"><div class="w-10 h-10 gradient-bg rounded-lg flex items-center justify-center text-white mx-auto mb-2 shadow"><i class="fas fa-bullseye text-sm"></i></div><p class="text-xs text-gray-500 uppercase font-bold mb-1">Accuracy</p><p id="statAccuracy" class="text-xl font-bold text-purple-600">0%</p></div>
-                <div class="card p-4 text-center"><div class="w-10 h-10 bg-gradient-to-br from-green-500 to-emerald-400 rounded-lg flex items-center justify-center text-white mx-auto mb-2 shadow"><i class="fas fa-trophy text-sm"></i></div><p class="text-xs text-gray-500 uppercase font-bold mb-1">Wins</p><p id="statWins" class="text-xl font-bold text-green-500">0</p></div>
-                <div class="card p-4 text-center"><div class="w-10 h-10 bg-gradient-to-br from-red-500 to-pink-400 rounded-lg flex items-center justify-center text-white mx-auto mb-2 shadow"><i class="fas fa-exclamation-triangle text-sm"></i></div><p class="text-xs text-gray-500 uppercase font-bold mb-1">Losses</p><p id="statLosses" class="text-xl font-bold text-red-500">0</p></div>
-                <div class="card p-4 text-center"><div class="w-10 h-10 bg-gradient-to-br from-amber-500 to-orange-400 rounded-lg flex items-center justify-center text-white mx-auto mb-2 shadow"><i class="fas fa-fire text-sm"></i></div><p class="text-xs text-gray-500 uppercase font-bold mb-1">Streak</p><div id="streakInfo" class="flex items-center justify-center gap-1"><div class="w-2 h-2 rounded-full bg-gray-300"></div><p class="text-base font-bold">-</p></div></div>
+            <div id="historySection" class="content-section">
+                <div class="flex justify-between items-center mb-6"><div class="flex items-center gap-2"><div class="w-9 h-9 gradient-bg rounded-lg flex items-center justify-center text-white shadow"><i class="fas fa-history"></i></div><h2 class="text-lg font-bold">Game History</h2></div><button onclick="clearHistory()" class="text-sm bg-gradient-to-r from-red-50 to-pink-50 text-red-500 px-3 py-1.5 rounded-lg font-bold"><i class="fas fa-trash-alt mr-1"></i> Clear</button></div>
+                <div id="historyContainer" class="space-y-3"></div>
             </div>
-        </div>
 
-        <!-- HISTORY -->
-        <div id="historySection" class="content-section">
-            <div class="flex justify-between items-center mb-6">
-                <div class="flex items-center gap-2"><div class="w-9 h-9 gradient-bg rounded-lg flex items-center justify-center text-white shadow"><i class="fas fa-history"></i></div><h2 class="text-lg font-bold">Game History</h2></div>
-                <button onclick="clearHistory()" class="text-sm bg-gradient-to-r from-red-50 to-pink-50 text-red-500 px-3 py-1.5 rounded-lg font-bold"><i class="fas fa-trash-alt mr-1"></i> Clear</button>
+            <div id="statsSection" class="content-section">
+                <div class="flex items-center gap-2 mb-6"><div class="w-9 h-9 gradient-bg rounded-lg flex items-center justify-center text-white shadow"><i class="fas fa-chart-line"></i></div><h2 class="text-lg font-bold">Performance Statistics</h2></div>
+                <div class="grid grid-cols-1 gap-4">
+                    <div class="card p-5 flex items-center justify-between"><div><p class="text-xs text-text-secondary font-bold uppercase mb-1">Total Predictions</p><p id="totalPreds" class="text-3xl font-black text-accent-primary">0</p><p class="text-xs text-text-secondary mt-1">AI-powered decisions made</p></div><div class="w-14 h-14 gradient-bg rounded-xl flex items-center justify-center text-white shadow"><i class="fas fa-calculator text-xl"></i></div></div>
+                    <div class="card p-5"><p class="text-xs text-text-secondary font-bold uppercase mb-3"><i class="fas fa-cogs text-accent-primary"></i> Model Accuracy Breakdown</p><div id="modelAccuracyStats" class="space-y-2"></div></div>
+                    <div class="card p-5"><p class="text-xs text-text-secondary font-bold uppercase mb-3"><i class="fas fa-chart-bar text-accent-primary"></i> Pattern Analysis</p><div id="patternStats" class="grid grid-cols-2 gap-3"></div></div>
+                </div>
             </div>
-            <div id="historyContainer" class="space-y-3"></div>
-        </div>
 
-        <!-- STATS -->
-        <div id="statsSection" class="content-section">
-            <div class="flex items-center gap-2 mb-6"><div class="w-9 h-9 gradient-bg rounded-lg flex items-center justify-center text-white shadow"><i class="fas fa-chart-line"></i></div><h2 class="text-lg font-bold">Performance Statistics</h2></div>
-            <div class="grid grid-cols-1 gap-4">
-                <div class="card p-5 flex items-center justify-between"><div><p class="text-xs text-gray-500 font-bold uppercase mb-1">Total Predictions</p><p id="totalPreds" class="text-3xl font-black text-purple-600">0</p><p class="text-xs text-gray-400 mt-1">AI-powered decisions made</p></div><div class="w-14 h-14 gradient-bg rounded-xl flex items-center justify-center text-white shadow"><i class="fas fa-calculator text-xl"></i></div></div>
-                <div class="card p-5"><p class="text-xs text-gray-500 font-bold uppercase mb-3"><i class="fas fa-cogs text-purple-600 mr-1"></i>Model Accuracy</p><div id="modelAccuracyStats" class="space-y-2"></div></div>
-                <div class="card p-5"><p class="text-xs text-gray-500 font-bold uppercase mb-3"><i class="fas fa-chart-bar text-purple-600 mr-1"></i>Pattern Analysis</p><div id="patternStats" class="grid grid-cols-2 gap-3"></div></div>
-            </div>
-        </div>
-
-        <!-- ABOUT -->
-        <div id="aboutSection" class="content-section">
-            <div class="card p-6">
+            <div id="aboutSection" class="content-section"><div class="card p-6">
                 <div class="grid grid-cols-2 gap-3 mb-5">
                     <button onclick="document.getElementById('switchPlatformBtn').click()" class="flex items-center justify-center gap-2 p-3 rounded-xl font-bold text-purple-700 border border-purple-200 bg-gradient-to-r from-purple-50 to-indigo-50 hover:shadow-md transition-all"><i class="fas fa-exchange-alt"></i> Switch Platform</button>
                     <button onclick="document.getElementById('logoutMainBtn').click()" class="flex items-center justify-center gap-2 p-3 rounded-xl font-bold text-red-600 border border-red-200 bg-gradient-to-r from-red-50 to-pink-50 hover:shadow-md transition-all"><i class="fas fa-sign-out-alt"></i> Logout</button>
                 </div>
-                <div class="flex items-center gap-3 mb-4">
-                    <div class="w-10 h-10 gradient-bg rounded-xl flex items-center justify-center text-white shadow"><i class="fas fa-robot"></i></div>
-                    <div><h2 class="text-xl font-bold">SURE SHOT AI PRO</h2><p class="text-sm text-gray-500">Dragon Neural Engine v15.0</p></div>
-                </div>
-                <p class="text-sm text-gray-500 leading-relaxed mb-4">Advanced BIG/SMALL prediction. Analyses <strong>last 7 results</strong> using 6 pattern rules.</p>
-                <div class="p-4 bg-purple-50 rounded-xl mb-4 space-y-1">
-                    <p class="text-xs font-bold text-purple-800 mb-2">🔮 6 Active Rules</p>
-                    <p class="text-xs text-purple-700"><span class="font-bold">R1:</span> BSBSBS — Alternating cycle</p>
-                    <p class="text-xs text-purple-700"><span class="font-bold">R2:</span> BBSSBBSS / SSBBSSBB — Pair cycle</p>
-                    <p class="text-xs text-purple-700"><span class="font-bold">R3:</span> SSSSSS — 6 consecutive SMALL → BIG <em>(only when 3-streak active)</em></p>
-                    <p class="text-xs text-purple-700"><span class="font-bold">R4:</span> BBBBB — 5 consecutive BIG → SMALL <em>(only when 3-streak active)</em></p>
-                    <p class="text-xs text-purple-700"><span class="font-bold">R5:</span> BBSBBS — BBS cycle</p>
-                    <p class="text-xs text-purple-700"><span class="font-bold">R6:</span> BSSBBS — BSS cycle</p>
-                </div>
-                <div class="flex items-center gap-3 p-3 bg-gray-50 rounded-xl">
-                    <div class="w-10 h-10 gradient-bg rounded-lg flex items-center justify-center text-white shadow"><i class="fab fa-telegram-plane"></i></div>
-                    <div><p class="text-sm font-bold">Official Channel</p><a href="#" class="text-sm text-purple-600 font-bold">@SURE_SHOT_AI_PRO</a></div>
-                </div>
-            </div>
-        </div>
+                <div class="flex items-center gap-3 mb-5"><div class="w-10 h-10 gradient-bg rounded-xl flex items-center justify-center text-white shadow"><i class="fas fa-robot"></i></div><div><h2 class="text-xl font-bold">SURE SHOT AI PRO</h2><p class="text-sm text-text-secondary">Dragon Neural Engine v8.0</p></div></div><p class="text-sm text-text-secondary leading-relaxed mb-6">Advanced BIG/SMALL prediction system using Dragon Pattern detection: ZigZag, Alternate, Dragon Streaks, Sandwich & Nani reversal algorithms with AI scoring.</p><div class="space-y-4"><div class="flex items-center gap-3 p-3 bg-gradient-to-r from-gray-50 to-white rounded-xl"><div class="w-10 h-10 gradient-bg rounded-lg flex items-center justify-center text-white shadow"><i class="fab fa-telegram-plane"></i></div><div class="flex-1"><p class="text-sm font-bold text-text-primary">Official Channel</p><a href="#" class="text-sm text-accent-primary font-bold">@SURE_SHOT_AI_PRO</a></div></div><div class="p-3 border border-dashed border-green-200 rounded-xl bg-gradient-to-r from-green-50 to-emerald-50"><p class="text-xs text-green-600 font-bold uppercase"><i class="fas fa-star"></i> New Feature</p><p class="text-sm text-green-700 font-medium">Ensemble Dragon Scoring · Real-time Pattern Detection</p></div></div></div></div>
+        </main>
 
-    </main>
+        <nav class="navigation">
+            <a href="#" class="nav-link active" data-section="homeSection">
+                <div class="nav-icon-wrap"><i class="fas fa-th-large"></i></div>
+                <span>Dashboard</span>
+            </a>
+            <a href="#" class="nav-link" data-section="historySection">
+                <div class="nav-icon-wrap"><i class="fas fa-history"></i></div>
+                <span>History</span>
+            </a>
+            <a href="#" class="nav-link" data-section="statsSection">
+                <div class="nav-icon-wrap"><i class="fas fa-chart-line"></i></div>
+                <span>Analytics</span>
+            </a>
+            <a href="#" class="nav-link" data-section="aboutSection">
+                <div class="nav-icon-wrap"><i class="fas fa-info-circle"></i></div>
+                <span>About</span>
+            </a>
+        </nav>
+    </div>
 
-    <nav class="navigation">
-        <a href="#" class="nav-link active" data-section="homeSection"><div class="nav-icon-wrap"><i class="fas fa-th-large"></i></div><span>Dashboard</span></a>
-        <a href="#" class="nav-link" data-section="historySection"><div class="nav-icon-wrap"><i class="fas fa-history"></i></div><span>History</span></a>
-        <a href="#" class="nav-link" data-section="statsSection"><div class="nav-icon-wrap"><i class="fas fa-chart-line"></i></div><span>Analytics</span></a>
-        <a href="#" class="nav-link" data-section="aboutSection"><div class="nav-icon-wrap"><i class="fas fa-info-circle"></i></div><span>About</span></a>
-    </nav>
-</div>
-
-<script>
-// ===================== DEVICE ID =====================
-function getOrCreateDeviceId() {
-    let d = localStorage.getItem('poscus_device_unique_id');
-    if (!d) {
-        d = 'Poscus-' + (Math.random().toString(36).substring(2,12) + Date.now().toString(36)).slice(0,12);
-        localStorage.setItem('poscus_device_unique_id', d);
-    }
-    return d;
-}
-const deviceId = getOrCreateDeviceId();
-document.getElementById('deviceIdDisplay').innerText = deviceId;
-
-let isLoggedIn = localStorage.getItem('poscus_auth') === 'true';
-let selectedPlatform = localStorage.getItem('poscus_selected_platform') || null;
-const loginScreen = document.getElementById('loginScreen');
-const platformScreen = document.getElementById('platformScreen');
-const mainApp = document.getElementById('mainAppContainer');
-
-function showLogin()             { loginScreen.style.display='flex'; platformScreen.style.display='none'; mainApp.style.display='none'; }
-function showPlatformSelection() { loginScreen.style.display='none'; platformScreen.style.display='block'; mainApp.style.display='none'; renderPlatformGrid(); }
-function showMainApp() {
-    loginScreen.style.display='none'; platformScreen.style.display='none'; mainApp.style.display='block';
-    if (selectedPlatform) document.getElementById('activePlatformLabel').innerText = selectedPlatform;
-    if (!window.mainAppInitialized) { window.mainAppInitialized = true; initMainDashboard(); }
-}
-
-// ===================== PLATFORM GRID =====================
-const gamesList = [
-    {name:"Jalwa",emoji:"🔥"},{name:"Bdg win",emoji:"🐉"},{name:"Tashan win",emoji:"⚡"},{name:"Trianga",emoji:"🎯"},
-    {name:"Raja Game",emoji:"👑"},{name:"51game",emoji:"🃏"},{name:"91club",emoji:"💥"},{name:"55club",emoji:"🍀"},
-    {name:"Dmwin",emoji:"🤖"},{name:"DIUWIN",emoji:"🏅"},{name:"Okwin",emoji:"✅"},{name:"Jai club",emoji:"🙌"},
-    {name:"Winzo",emoji:"⚙️"},{name:"Khelo365",emoji:"🎲"},{name:"Lucky7",emoji:"7️⃣"},{name:"SpinMaster",emoji:"🌀"}
-];
-function renderPlatformGrid() {
-    const g = document.getElementById('platformGrid');
-    if (!g) return;
-    g.innerHTML = gamesList.map(x => `<button class="game-btn p-3 rounded-xl shadow-md flex flex-col items-center gap-1" data-platform="${x.name}"><span class="text-3xl">${x.emoji}</span><span class="font-bold text-purple-800 text-sm">${x.name}</span><span class="text-xs text-gray-400">ACTIVE</span></button>`).join('');
-    g.querySelectorAll('[data-platform]').forEach(btn => btn.addEventListener('click', () => {
-        selectedPlatform = btn.dataset.platform;
-        localStorage.setItem('poscus_selected_platform', selectedPlatform);
-        showMainApp();
-    }));
-}
-
-// ===================== LOGOUT =====================
-function logoutFull(reason) {
-    ['poscus_auth','poscus_selected_platform','poscus_active_key'].forEach(k => localStorage.removeItem(k));
-    isLoggedIn = false; selectedPlatform = null; window.mainAppInitialized = false;
-    if (window.fetchInterval) clearInterval(window.fetchInterval);
-    if (window.keyCheckInterval) clearInterval(window.keyCheckInterval);
-    showLogin();
-    document.getElementById('accessPassword').value = '';
-    if (reason === 'key_deleted') document.getElementById('loginMsg').innerHTML = '<span class="text-red-500">🚫 Access key revoked. Contact admin.</span>';
-}
-document.getElementById('logoutFromPlatform').addEventListener('click', logoutFull);
-document.getElementById('logoutMainBtn').addEventListener('click', logoutFull);
-document.getElementById('switchPlatformBtn').addEventListener('click', showPlatformSelection);
-
-// ===================== FIREBASE + LOGIN =====================
-const DB_URL = "https://poscus-ai-80611-default-rtdb.asia-southeast1.firebasedatabase.app";
-
-function showMsg(html, autoClear=true) {
-    const m = document.getElementById('loginMsg');
-    m.innerHTML = html;
-    if (autoClear) { clearTimeout(window._mt); window._mt = setTimeout(() => m.innerHTML='Enter the key provided by admin', 5000); }
-}
-
-document.getElementById('loginBtn').addEventListener('click', async () => {
-    const key = document.getElementById('accessPassword').value.trim();
-    const btn = document.getElementById('loginBtn');
-    if (!key) { showMsg('<span class="text-red-500">Please enter your access key</span>'); return; }
-    btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Verifying...';
-    showMsg('<span class="text-purple-500">Checking key...</span>', false);
-    try {
-        const data = await (await fetch(`${DB_URL}/keys/${encodeURIComponent(key)}.json`)).json();
-        if (!data || data.active !== true) {
-            showMsg('<span class="text-red-500">❌ Invalid or inactive key.</span>');
-            btn.disabled=false; btn.innerHTML='<i class="fas fa-arrow-right-to-bracket"></i> Unlock Neural Engine'; return;
+    <script>
+        // ==================== DEVICE ID & GLOBAL STATE ====================
+        function getOrCreateDeviceId() {
+            let deviceId = localStorage.getItem('poscus_device_unique_id');
+            if (!deviceId) {
+                const randomPart = Math.random().toString(36).substring(2, 12) + Date.now().toString(36);
+                deviceId = `Poscus-${randomPart.slice(0, 12)}`;
+                localStorage.setItem('poscus_device_unique_id', deviceId);
+            }
+            return deviceId;
         }
-        const saved = data.device || '';
-        if (saved && saved !== deviceId) {
-            showMsg('<span class="text-red-500">⚠️ Key locked to another device.</span>');
-            btn.disabled=false; btn.innerHTML='<i class="fas fa-arrow-right-to-bracket"></i> Unlock Neural Engine'; return;
-        }
-        if (!saved) await fetch(`${DB_URL}/keys/${encodeURIComponent(key)}.json`, { method:'PATCH', headers:{'Content-Type':'application/json'}, body:JSON.stringify({device:deviceId}) });
-        localStorage.setItem('poscus_auth','true');
-        localStorage.setItem('poscus_active_key', key);
-        isLoggedIn = true;
-        startKeyValidation();
-        showPlatformSelection();
-    } catch(e) {
-        showMsg('<span class="text-red-400">Network error. Try again.</span>');
-        btn.disabled=false; btn.innerHTML='<i class="fas fa-arrow-right-to-bracket"></i> Unlock Neural Engine';
-    }
-});
+        const deviceId = getOrCreateDeviceId();
+        if (document.getElementById('deviceIdDisplay')) document.getElementById('deviceIdDisplay').innerText = deviceId;
 
-async function validateKeyInBackground() {
-    const k = localStorage.getItem('poscus_active_key');
-    if (!k || !isLoggedIn) return;
-    try {
-        const d = await (await fetch(`${DB_URL}/keys/${encodeURIComponent(k)}.json`)).json();
-        if (!d || d.active !== true) logoutFull('key_deleted');
-    } catch(e) {}
-}
-function startKeyValidation() {
-    if (window.keyCheckInterval) clearInterval(window.keyCheckInterval);
-    validateKeyInBackground();
-    window.keyCheckInterval = setInterval(validateKeyInBackground, 10000);
-}
+        let isLoggedIn = localStorage.getItem('poscus_auth') === 'true';
+        let selectedPlatform = localStorage.getItem('poscus_selected_platform') || null;
 
-// ===================== PREDICTION ENGINE v15.0 =====================
-// Uses LAST 7 RESULTS only
-// B=BIG  S=SMALL
-//
-// RULE 1: B S B S B S        → alternating pattern
-// RULE 2: B B S S B B S S    → pair cycle (or reverse: S S B B S S B B)
-// RULE 3: S S S S S S        → 6+ SMALL streak → predict BIG
-// RULE 4: B B B B B          → 5+ BIG streak   → predict SMALL
-//   ⚠️  R3 & R4: ONLY active when last 3 results are same (3-streak present), otherwise PERMANENTLY OFF
-// RULE 5: B B S B B S        → BBS repeating cycle
-// RULE 6: B S S B B S        → BSS repeating cycle
+        const loginScreen = document.getElementById('loginScreen');
+        const platformScreen = document.getElementById('platformScreen');
+        const mainApp = document.getElementById('mainAppContainer');
 
-const R1_PAT = ['BIG','SMALL','BIG','SMALL','BIG','SMALL'];
-const R2A_PAT = ['BIG','BIG','SMALL','SMALL','BIG','BIG','SMALL','SMALL'];
-const R2B_PAT = ['SMALL','SMALL','BIG','BIG','SMALL','SMALL','BIG','BIG'];
-const R5_PAT = ['BIG','BIG','SMALL','BIG','BIG','SMALL'];
-const R6_PAT = ['BIG','SMALL','SMALL','BIG','BIG','SMALL'];
-
-function matchCycle(oldestFirst, pat, minLen) {
-    const pL = pat.length, n = oldestFirst.length;
-    if (n < minLen) return null;
-    for (let off = 0; off < pL; off++) {
-        let ok = true;
-        for (let i = 0; i < n; i++) if (oldestFirst[i] !== pat[(off+i)%pL]) { ok=false; break; }
-        if (ok) return { next: pat[(off+n)%pL], matchLen: n };
-    }
-    return null;
-}
-
-function getStreak(seq) {
-    let len=1; while (len<seq.length && seq[len]===seq[0]) len++;
-    return { val:seq[0], len };
-}
-
-function getRecentLossStreak() {
-    let c=0;
-    for (const r of gameHistory.filter(i=>i.status!=='PENDING').slice(0,5)) { if (r.status==='LOSS') c++; else break; }
-    return c;
-}
-
-function dragonScoreEngine(seq) {
-    // seq = newest first, max 7 items
-    if (!seq || seq.length < 3) return null;
-    const of = [...seq].reverse();  // oldest first
-    const n  = of.length;
-    const votes = { BIG:0, SMALL:0 };
-    const patterns = {};
-    let sigs = 0;
-    const stk = getStreak(seq);
-    patterns.streak = stk;
-
-    // ── RULE 1 ──
-    let r1=null;
-    for (let w=Math.min(n,6); w>=3; w--) { r1=matchCycle(of.slice(n-w), R1_PAT, 3); if(r1) break; }
-    if (r1) { votes[r1.next]+=6; sigs++; patterns.rule1=r1; }
-
-    // ── RULE 2 ──
-    let r2=null;
-    for (let w=Math.min(n,8); w>=4; w--) {
-        r2 = matchCycle(of.slice(n-w), R2A_PAT, 4) || matchCycle(of.slice(n-w), R2B_PAT, 4);
-        if (r2) break;
-    }
-    if (r2) { votes[r2.next]+=6; sigs++; patterns.rule2=r2; }
-
-    // ── RULE 3 & 4 — only when 3-streak exists ──
-    if (stk.len >= 3) {
-        const sS = (() => { let c=0; for(const v of seq){if(v==='SMALL')c++; else break;} return c; })();
-        const bS = (() => { let c=0; for(const v of seq){if(v==='BIG')c++; else break;} return c; })();
-        if (sS >= 6) { votes['BIG']+=9; sigs++; patterns.rule3={streakLen:sS}; }
-        if (bS >= 5) { votes['SMALL']+=9; sigs++; patterns.rule4={streakLen:bS}; }
-    }
-
-    // ── RULE 5 ──
-    let r5=null;
-    for (let w=Math.min(n,6); w>=3; w--) { r5=matchCycle(of.slice(n-w), R5_PAT, 3); if(r5) break; }
-    if (r5) { votes[r5.next]+=6; sigs++; patterns.rule5=r5; }
-
-    // ── RULE 6 ──
-    let r6=null;
-    for (let w=Math.min(n,6); w>=3; w--) { r6=matchCycle(of.slice(n-w), R6_PAT, 3); if(r6) break; }
-    if (r6) { votes[r6.next]+=6; sigs++; patterns.rule6=r6; }
-
-    // ── Anti-loss correction ──
-    const ls = getRecentLossStreak();
-    if (ls >= 2) {
-        const wl = gameHistory.filter(i=>i.status==='LOSS').slice(0,ls);
-        if (wl.length >= 2) {
-            const fix = wl[0].predictedSize === 'BIG' ? 'SMALL' : 'BIG';
-            votes[fix] += ls>=3 ? 5 : 3; sigs++;
-            patterns.antiLoss = { ls, fix };
-        }
-    }
-
-    // ── Fallback ──
-    if (sigs === 0) votes[seq[0]==='BIG'?'SMALL':'BIG'] += 1;
-
-    const total = votes.BIG + votes.SMALL || 1;
-    const prediction = votes.BIG >= votes.SMALL ? 'BIG' : 'SMALL';
-    const dom = Math.max(votes.BIG, votes.SMALL) / total;
-    const conf = Math.min(90, Math.max(55, Math.round(50 + dom*40 + Math.min(sigs,6)*1.5)));
-    const bigProb = Math.max(15, Math.min(85, Math.round((votes.BIG/total)*100)));
-
-    patterns.activeRule = patterns.rule1?'R1':patterns.rule2?'R2':patterns.rule3?'R3':patterns.rule4?'R4':patterns.rule5?'R5':patterns.rule6?'R6':'STREAK';
-
-    return { prediction, confidence:conf, bigProb, smallProb:100-bigProb,
-             scoreDiff:Math.abs(votes.BIG-votes.SMALL), scores:{BIG:votes.BIG,SMALL:votes.SMALL}, patterns };
-}
-
-// ── History init ──
-const _HV = 'rules_v15';
-if (localStorage.getItem('tx_history_version') !== _HV) { localStorage.removeItem('tx_history_pro'); localStorage.setItem('tx_history_version',_HV); }
-let gameHistory = JSON.parse(localStorage.getItem('tx_history_pro')) || [];
-let lockedPeriod=null, lockedPred=null, winStreak=0, lossStreak=0;
-let engineStats = { BIG:{wins:0,losses:0}, SMALL:{wins:0,losses:0} };
-function updateEngineStats(p,w) { if(w) engineStats[p].wins++; else engineStats[p].losses++; }
-function getAccuracy(s) { const t=engineStats[s].wins+engineStats[s].losses; return t?Math.round((engineStats[s].wins/t)*100):50; }
-
-// ===================== API FETCH =====================
-async function fetchGameResult() {
-    try {
-        const data = await (await fetch(`https://draw.ar-lottery01.com/WinGo/WinGo_1M/GetHistoryIssuePage.json?ts=${Date.now()}`)).json();
-        if (data?.data?.list?.length) processGameList(data.data.list);
-    } catch(e) { console.warn("API error",e); }
-}
-
-function processGameList(list) {
-    const latest = list[0];
-    if (!latest || (!latest.issue && !latest.issueNumber)) return;
-    const latestIssue = latest.issue || latest.issueNumber;
-    let nextIssue;
-    try { nextIssue = (BigInt(latestIssue)+1n).toString(); document.getElementById('displayPeriod').innerText = nextIssue.slice(-5); } catch(e) { return; }
-
-    let updated = false;
-    gameHistory.forEach(item => {
-        if (item.status === 'PENDING') {
-            const ac = list.find(l => (l.issue||l.issueNumber) === item.issue);
-            if (ac) {
-                const num = parseInt(ac.number), size = num>=5?'BIG':'SMALL';
-                item.actual=num; item.actualSize=size;
-                const won = item.predictedSize===size;
-                item.status = won?'WIN':'LOSS';
-                updateEngineStats(item.predictedSize, won);
-                if (won){winStreak++;lossStreak=0;}else{lossStreak++;winStreak=0;}
-                updated=true;
+        function showLogin() { loginScreen.style.display = 'flex'; platformScreen.style.display = 'none'; mainApp.style.display = 'none'; }
+        function showPlatformSelection() { loginScreen.style.display = 'none'; platformScreen.style.display = 'block'; mainApp.style.display = 'none'; renderPlatformGrid(); }
+        function showMainApp() {
+            loginScreen.style.display = 'none';
+            platformScreen.style.display = 'none';
+            mainApp.style.display = 'block';
+            if (selectedPlatform) document.getElementById('activePlatformLabel').innerText = selectedPlatform;
+            // Ensure main dashboard scripts are initialized only once
+            if (typeof window.mainAppInitialized === 'undefined') {
+                window.mainAppInitialized = true;
+                initMainDashboard();
             }
         }
-    });
 
-    // ★ LAST 7 RESULTS ONLY ★
-    const raw7 = list.slice(0, 7);
-    const seq  = raw7.map(i => parseInt(i.number)>=5?'BIG':'SMALL');
+        // ==================== PLATFORM GRID (all game buttons) ====================
+        const gamesList = [
+            { name: "Jalwa", emoji: "🔥🎲" }, { name: "Bdg win", emoji: "🐉💎" }, { name: "Tashan win", emoji: "⚡🃏" }, { name: "Trianga", emoji: "🎯🏆" },
+            { name: "Raja Game", emoji: "👑🎰" }, { name: "51game", emoji: "🃏🔮" }, { name: "91club", emoji: "💥🎲" }, { name: "55club", emoji: "🍀🎯" },
+            { name: "Dmwin", emoji: "🤖💎" }, { name: "DIUWIN", emoji: "⚡🏅" }, { name: "Okwin", emoji: "✅🎰" }, { name: "Jai club", emoji: "🙌🔥" },
+            { name: "Winzo", emoji: "⚙️🎮" }, { name: "Khelo365", emoji: "🎲🎯" }, { name: "Lucky7", emoji: "7️⃣🍀" }, { name: "SpinMaster", emoji: "🌀💢" }
+        ];
+        function renderPlatformGrid() {
+            const grid = document.getElementById('platformGrid');
+            if (!grid) return;
+            grid.innerHTML = gamesList.map(game => `
+                <button class="game-btn p-3 rounded-xl shadow-md flex flex-col items-center justify-center gap-1 transition-all hover:scale-105" data-platform="${game.name}">
+                    <span class="text-3xl">${game.emoji.split(' ')[0]}</span>
+                    <span class="font-bold text-purple-800">${game.name}</span>
+                    <span class="text-xs text-gray-500">${game.emoji.includes('🎲') ? 'LIVE' : 'ACTIVE'}</span>
+                </button>
+            `).join('');
+            document.querySelectorAll('[data-platform]').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const platform = btn.getAttribute('data-platform');
+                    localStorage.setItem('poscus_selected_platform', platform);
+                    selectedPlatform = platform;
+                    showMainApp();
+                });
+            });
+        }
 
-    if (seq.length >= 3) {
-        if (nextIssue !== lockedPeriod) {
-            const pred = dragonScoreEngine(seq);
-            if (pred) {
-                lockedPeriod=nextIssue; lockedPred=pred;
-                if (!gameHistory.find(i=>i.issue===nextIssue)) {
-                    gameHistory.unshift({ issue:nextIssue, display:nextIssue.slice(-5), predictionType:'SIZE', predictedSize:pred.prediction, status:'PENDING', actual:null, actualSize:null, timestamp:Date.now(), confidence:pred.confidence, sizeEdge:pred.scoreDiff, bigProb:pred.bigProb, smallProb:pred.smallProb });
-                    updated=true;
+        // ==================== LOGOUT ====================
+        function logoutFull(reason) {
+            localStorage.removeItem('poscus_auth');
+            localStorage.removeItem('poscus_selected_platform');
+            localStorage.removeItem('poscus_active_key');
+            isLoggedIn = false;
+            selectedPlatform = null;
+            showLogin();
+            document.getElementById('accessPassword').value = '';
+            // stop intervals to avoid background updates
+            if (window.fetchInterval) clearInterval(window.fetchInterval);
+            if (window.keyCheckInterval) clearInterval(window.keyCheckInterval);
+            window.mainAppInitialized = false;
+            // Show reason if admin deleted key
+            if (reason === 'key_deleted') {
+                const loginMsg = document.getElementById('loginMsg');
+                if (loginMsg) {
+                    loginMsg.innerHTML = '<span class="text-red-500">🚫 Your access key has been revoked by admin. Contact support.</span>';
                 }
-                updateDisplay(pred, raw7);
             }
-        } else if (lockedPred) {
-            updateDisplay(lockedPred, raw7);
         }
-    }
-    if (updated) saveAndRefresh();
-}
 
-// ===================== DISPLAY UPDATE =====================
-function updateDisplay(pred, raw7) {
-    const p = pred.patterns;
-    document.getElementById('displayPrediction').innerText = pred.prediction;
-    document.getElementById('displayPrediction').className = `text-2xl font-bold ${pred.confidence>=80?'text-green-300':pred.confidence>=65?'text-yellow-300':'text-red-300'}`;
-    document.getElementById('bigProbabilityValue').innerText = pred.bigProb+'%';
-    document.getElementById('bigProbabilityBar').style.width = pred.bigProb+'%';
-    document.getElementById('smallProbabilityValue').innerText = pred.smallProb+'%';
-    document.getElementById('smallProbabilityBar').style.width = pred.smallProb+'%';
-    document.getElementById('sizeEdgeValue').innerText = pred.scoreDiff;
-    document.getElementById('sizePreference').innerText = pred.prediction==='BIG'?'🔥 Engine leans BIG':'🐉 Engine leans SMALL';
-    document.getElementById('activePredictionType').innerHTML = `SIZE: <span class="font-black text-purple-900">${pred.prediction}</span> <span class="text-sm font-normal">(${pred.confidence}% conf · ${p.activeRule} active)</span>`;
-    document.getElementById('recommendedPrediction').innerText = pred.prediction;
-    document.getElementById('recommendedConfidenceValue').innerText = pred.confidence+'%';
-    document.getElementById('patternStrengthLabel').innerText = pred.scoreDiff>=10?'HIGH':pred.scoreDiff>=5?'MEDIUM':'LOW';
+        // ==================== BACKGROUND KEY VALIDATOR ====================
+        // Checks every 10 seconds if user's key is still active in Firebase
+        // If key is deleted or deactivated → instant logout
+        async function validateKeyInBackground() {
+            const activeKey = localStorage.getItem('poscus_active_key');
+            if (!activeKey || !isLoggedIn) return;
+            try {
+                const res = await fetch(`${DB_URL}/keys/${encodeURIComponent(activeKey)}.json`);
+                const data = await res.json();
+                // Key deleted (null) or deactivated (active !== true) → force logout
+                if (!data || data.active !== true) {
+                    logoutFull('key_deleted');
+                }
+            } catch (e) {
+                // Network error — do NOT logout (be tolerant of temporary failures)
+                console.warn("Key validation check failed (network):", e);
+            }
+        }
 
-    const tags=[];
-    if(p.rule1) tags.push(`🎯 R1: BSBSBS (${p.rule1.matchLen}/6)`);
-    if(p.rule2) tags.push(`🔢 R2: BBSS Pair (${p.rule2.matchLen})`);
-    if(p.rule3) tags.push(`🔵 R3: ${p.rule3.streakLen}× SMALL → BIG`);
-    if(p.rule4) tags.push(`🔴 R4: ${p.rule4.streakLen}× BIG → SMALL`);
-    if(p.rule5) tags.push(`🟢 R5: BBSBBS (${p.rule5.matchLen})`);
-    if(p.rule6) tags.push(`🟡 R6: BSSBBS (${p.rule6.matchLen})`);
-    if(p.streak && p.streak.len>=2) tags.push(`⚡ ${p.streak.len}× ${p.streak.val}`);
-    if(p.antiLoss) tags.push(`🔧 Anti-Loss: ${p.antiLoss.ls}L → ${p.antiLoss.fix}`);
-    document.getElementById('methodInfo').innerHTML = tags.map(t=>`<span class="method-indicator bg-gradient-to-r from-purple-700 to-indigo-600 text-white">${t}</span>`).join('');
+        function startKeyValidation() {
+            // Clear any existing interval first
+            if (window.keyCheckInterval) clearInterval(window.keyCheckInterval);
+            // Validate immediately, then every 10 seconds
+            validateKeyInBackground();
+            window.keyCheckInterval = setInterval(validateKeyInBackground, 10000);
+        }
+        document.getElementById('logoutFromPlatform')?.addEventListener('click', logoutFull);
+        document.getElementById('logoutMainBtn')?.addEventListener('click', logoutFull);
+        document.getElementById('switchPlatformBtn')?.addEventListener('click', () => { showPlatformSelection(); });
 
-    document.getElementById('trendSummary').innerHTML = `<div class="bg-white/20 backdrop-blur-sm px-3 py-1.5 rounded-lg text-xs font-bold inline-block">🔥 BIG ${pred.scores.BIG} vs SMALL ${pred.scores.SMALL} · Edge ${pred.scoreDiff}</div>`;
-    document.getElementById('modelAccuracyStats').innerHTML = `<div class="flex justify-between p-2 bg-gray-50 rounded-lg"><span class="text-xs font-bold">BIG Accuracy</span><span class="text-xs font-bold text-green-600">${getAccuracy('BIG')}%</span></div><div class="flex justify-between p-2 bg-gray-50 rounded-lg"><span class="text-xs font-bold">SMALL Accuracy</span><span class="text-xs font-bold text-blue-600">${getAccuracy('SMALL')}%</span></div>`;
-    document.getElementById('patternStats').innerHTML = `<div class="bg-purple-50 p-3 rounded-lg"><p class="text-xs text-purple-600 font-bold">Dragon Edge</p><p class="text-xl font-bold text-purple-700">${pred.scoreDiff}</p></div><div class="bg-indigo-50 p-3 rounded-lg"><p class="text-xs text-indigo-600 font-bold">Confidence</p><p class="text-xl font-bold text-indigo-700">${pred.confidence}%</p></div><div class="bg-amber-50 p-3 rounded-lg"><p class="text-xs text-amber-600 font-bold">BIG Prob</p><p class="text-xl font-bold text-amber-700">${pred.bigProb}%</p></div><div class="bg-cyan-50 p-3 rounded-lg"><p class="text-xs text-cyan-600 font-bold">SMALL Prob</p><p class="text-xl font-bold text-cyan-700">${pred.smallProb}%</p></div>`;
+        // ==================== FIREBASE KEY LOGIN ====================
+        const DB_URL = "https://poscus-ai-80611-default-rtdb.asia-southeast1.firebasedatabase.app";
 
-    updateRecentNumbers(raw7);
-}
+        function showMsg(html, autoClear = true) {
+            const loginMsg = document.getElementById('loginMsg');
+            loginMsg.innerHTML = html;
+            if (autoClear) {
+                clearTimeout(window._msgTimer);
+                window._msgTimer = setTimeout(() => {
+                    loginMsg.innerHTML = 'Enter the key provided by admin';
+                }, 5000);
+            }
+        }
 
-function updateRecentNumbers(items) {
-    const c = document.getElementById('recentNumbers');
-    if (!c) return;
-    c.innerHTML = items.slice(0,7).map(item => {
-        const num = parseInt(item.number), big = num>=5;
-        return `<div class="flex flex-col items-center gap-0.5">
-            <span class="w-8 h-8 flex items-center justify-center rounded-full text-xs font-bold text-white ${big?'bg-gradient-to-br from-blue-500 to-cyan-500 shadow-[0_0_0_2px_#3b82f6]':'bg-gradient-to-br from-purple-500 to-pink-500 shadow-[0_0_0_2px_#a855f7]'}">${num}</span>
-            <span class="text-[9px] font-bold text-white/80">${big?'B':'S'}</span>
-        </div>`;
-    }).join('');
-}
+        document.getElementById('loginBtn')?.addEventListener('click', async () => {
+            const keyInput = document.getElementById('accessPassword').value.trim();
+            const loginBtn = document.getElementById('loginBtn');
 
-// ===================== HISTORY UI =====================
-function saveAndRefresh() {
-    if (gameHistory.length>50) gameHistory=gameHistory.slice(0,50);
-    localStorage.setItem('tx_history_pro', JSON.stringify(gameHistory));
-    updateUI();
-}
+            if (!keyInput) {
+                showMsg('<span class="text-red-500">Please enter your access key</span>');
+                return;
+            }
 
-function updateUI() {
-    const c = document.getElementById('historyContainer');
-    if (!c) return;
-    if (!gameHistory.length) {
-        c.innerHTML=`<div class="text-center py-8"><i class="fas fa-history text-gray-300 text-3xl mb-3"></i><p class="text-gray-400 text-sm">Waiting for API data...</p></div>`;
-    } else {
-        c.innerHTML = gameHistory.map(item=>`
-        <div class="history-item ${item.status==='WIN'?'win':item.status==='LOSS'?'loss':'pending'}">
-            <div class="flex-1">
-                <div class="flex items-center gap-2 mb-1">
-                    <p class="text-xs font-bold text-gray-400">#${item.display}</p>
-                    <span class="text-[10px] font-bold px-2 py-0.5 rounded-lg ${item.confidence>=80?'bg-green-100 text-green-600':item.confidence>=65?'bg-yellow-100 text-yellow-600':'bg-red-100 text-red-600'}">${item.confidence}%</span>
-                </div>
-                <p class="text-sm font-bold">SIZE: <span class="text-purple-600">${item.predictedSize}</span></p>
-                <span class="text-[10px] bg-purple-100 text-purple-600 px-2 py-0.5 rounded-full">Edge: ${item.sizeEdge}</span>
-                ${item.actual!==null?`<div class="border-t border-gray-100 pt-1 mt-1"><p class="text-xs text-gray-500">Result: ${item.actual} (${item.actualSize})</p></div>`:`<div class="border-t border-gray-100 pt-1 mt-1"><p class="text-xs text-orange-400"><i class="fas fa-clock"></i> Pending...</p></div>`}
-            </div>
-            <div class="text-right ml-3">
-                <span class="status-badge ${item.status==='WIN'?'bg-green-100 text-green-600 border border-green-200':item.status==='PENDING'?'bg-orange-100 text-orange-600 border border-orange-200':'bg-red-100 text-red-600 border border-red-200'}">${item.status}</span>
-                <p class="text-xs text-gray-400 mt-1">${new Date(item.timestamp).toLocaleTimeString()}</p>
-            </div>
-        </div>`).join('');
-    }
-    const done = gameHistory.filter(i=>i.status!=='PENDING');
-    const wins = done.filter(i=>i.status==='WIN').length;
-    document.getElementById('statAccuracy').innerText = (done.length?Math.round((wins/done.length)*100):0)+'%';
-    document.getElementById('statWins').innerText = wins;
-    document.getElementById('statLosses').innerText = done.length-wins;
-    document.getElementById('totalPreds').innerText = done.length;
-    const sd = document.getElementById('streakInfo');
-    if (winStreak>0) sd.innerHTML=`<div class="w-2 h-2 rounded-full bg-green-500"></div><p class="text-base font-bold text-green-600">${winStreak}W</p>`;
-    else if (lossStreak>0) sd.innerHTML=`<div class="w-2 h-2 rounded-full bg-red-500"></div><p class="text-base font-bold text-red-600">${lossStreak}L</p>`;
-    else sd.innerHTML=`<div class="w-2 h-2 rounded-full bg-gray-300"></div><p class="text-base font-bold">-</p>`;
-}
+            // Show loading state
+            loginBtn.disabled = true;
+            loginBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Verifying...';
+            showMsg('<span class="text-purple-500">Checking key with server...</span>', false);
 
-window.clearHistory = function() {
-    if (!confirm("Clear all history?")) return;
-    gameHistory=[]; winStreak=0; lossStreak=0;
-    engineStats={BIG:{wins:0,losses:0},SMALL:{wins:0,losses:0}};
-    localStorage.setItem('tx_history_pro','[]');
-    updateUI();
-};
+            try {
+                const res = await fetch(`${DB_URL}/keys/${encodeURIComponent(keyInput)}.json`);
+                const data = await res.json();
 
-// ===================== INIT =====================
-function initMainDashboard() {
-    updateUI(); fetchGameResult();
-    if (window.fetchInterval) clearInterval(window.fetchInterval);
-    window.fetchInterval = setInterval(fetchGameResult, 5000);
-    document.querySelectorAll('#mainAppContainer .nav-link').forEach(link => {
-        link.addEventListener('click', e => {
-            e.preventDefault();
-            const id = link.dataset.section;
-            document.querySelectorAll('#mainAppContainer .nav-link').forEach(l=>l.classList.remove('active'));
-            link.classList.add('active');
-            document.querySelectorAll('#mainAppContainer .content-section').forEach(s=>s.classList.remove('active'));
-            document.getElementById(id)?.classList.add('active');
+                if (!data || data.active !== true) {
+                    showMsg('<span class="text-red-500">❌ Invalid or inactive key. Contact admin.</span>');
+                    loginBtn.disabled = false;
+                    loginBtn.innerHTML = '<i class="fas fa-arrow-right-to-bracket"></i> Unlock Neural Engine';
+                    return;
+                }
+
+                const currentDevice = deviceId;
+                const savedDevice = data.device || "";
+
+                if (savedDevice !== "" && savedDevice !== currentDevice) {
+                    showMsg('<span class="text-red-500">⚠️ Key locked to another device. Contact admin to reset.</span>');
+                    loginBtn.disabled = false;
+                    loginBtn.innerHTML = '<i class="fas fa-arrow-right-to-bracket"></i> Unlock Neural Engine';
+                    return;
+                }
+
+                // If device not yet set, bind this device to the key
+                if (savedDevice === "") {
+                    await fetch(`${DB_URL}/keys/${encodeURIComponent(keyInput)}.json`, {
+                        method: 'PATCH',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ device: currentDevice })
+                    });
+                }
+
+                // Success — direct login, no message
+                localStorage.setItem('poscus_auth', 'true');
+                localStorage.setItem('poscus_active_key', keyInput);
+                isLoggedIn = true;
+                startKeyValidation(); // ← Begin background key monitoring
+                showPlatformSelection();
+
+            } catch (e) {
+                showMsg('<span class="text-red-400">Network error. Please try again.</span>');
+                loginBtn.disabled = false;
+                loginBtn.innerHTML = '<i class="fas fa-arrow-right-to-bracket"></i> Unlock Neural Engine';
+            }
         });
-    });
-}
 
-// Route on load
-if (isLoggedIn && selectedPlatform) { startKeyValidation(); showMainApp(); }
-else if (isLoggedIn) { startKeyValidation(); showPlatformSelection(); }
-else showLogin();
-</script>
+        // ==================== PREDICTION ENGINE v14.0 — High Accuracy ====================
+        const RULE1 = ['BIG','SMALL','SMALL','BIG','SMALL','BIG'];
+        const RULE2 = ['BIG','BIG','SMALL','SMALL'];
+
+        function matchCycle(seqOldFirst, pattern, minLen) {
+            const pLen = pattern.length, n = seqOldFirst.length;
+            if (n < minLen) return null;
+            for (let offset = 0; offset < pLen; offset++) {
+                let ok = true;
+                for (let i = 0; i < n; i++) {
+                    if (seqOldFirst[i] !== pattern[(offset + i) % pLen]) { ok = false; break; }
+                }
+                if (ok) return { next: pattern[(offset + n) % pLen], matchLen: n };
+            }
+            return null;
+        }
+
+        function getStreak(seq) {
+            let len = 1;
+            while (len < seq.length && seq[len] === seq[0]) len++;
+            return { val: seq[0], len };
+        }
+
+        function isAlternating(seq) {
+            const s = seq.slice(0, 6);
+            let alt = true;
+            for (let i = 1; i < s.length; i++) { if (s[i] === s[i-1]) { alt = false; break; } }
+            return s.length >= 4 && alt;
+        }
+
+        // Count consecutive losses from history to apply anti-loss correction
+        function getRecentLossStreak() {
+            const recent = gameHistory.filter(i => i.status !== 'PENDING').slice(0, 5);
+            let losses = 0;
+            for (const r of recent) { if (r.status === 'LOSS') losses++; else break; }
+            return losses;
+        }
+
+        function dragonScoreEngine(seq) {
+            if (!seq || seq.length < 3) return null;
+            const of = [...seq].reverse(); // oldest first
+            const len = of.length;
+            const patterns = {};
+            const votes = { BIG: 0, SMALL: 0 };
+            let signalCount = 0;
+
+            // ── Signal 1: Streak reversal (weighted by streak length) ──
+            const stk = getStreak(seq);
+            patterns.streak = stk;
+            if (stk.len >= 6)      { const r = stk.val==='BIG'?'SMALL':'BIG'; votes[r] += 8; signalCount++; }
+            else if (stk.len === 5){ const r = stk.val==='BIG'?'SMALL':'BIG'; votes[r] += 7; signalCount++; }
+            else if (stk.len === 4){ const r = stk.val==='BIG'?'SMALL':'BIG'; votes[r] += 6; signalCount++; }
+            else if (stk.len === 3){ const r = stk.val==='BIG'?'SMALL':'BIG'; votes[r] += 4; signalCount++; }
+            else if (stk.len === 2){ const r = stk.val==='BIG'?'SMALL':'BIG'; votes[r] += 1; signalCount++; }
+
+            // ── Signal 2: Rule 1 cycle match (min 4) ──
+            let r1 = null;
+            for (let w = Math.min(len, 6); w >= 4; w--) {
+                r1 = matchCycle(of.slice(len - w), RULE1, 4);
+                if (r1) break;
+            }
+            if (r1) { votes[r1.next] += 4; signalCount++; patterns.rule1 = r1; }
+
+            // ── Signal 3: Rule 2 pair cycle (BBSS) ──
+            const r2 = len >= 4 ? matchCycle(of.slice(len - 4), RULE2, 4) : null;
+            if (r2) { votes[r2.next] += 4; signalCount++; patterns.rule2 = r2; }
+
+            // ── Signal 4: Alternating pattern (BSBSBS) → continue alternating ──
+            if (isAlternating(seq)) {
+                const next = seq[0] === 'BIG' ? 'SMALL' : 'BIG';
+                votes[next] += 5; signalCount++;
+                patterns.alt = true;
+            }
+
+            // ── Signal 5: Pair switch (AABB → after 2nd, switch) ──
+            if (seq.length >= 3 && seq[0] === seq[1] && seq[1] !== seq[2]) {
+                votes[seq[2]] += 3; signalCount++;
+                patterns.pair = true;
+            }
+
+            // ── RULE 4: 4+ consecutive BIG → strong SMALL reversal ──
+            const bigStreakLen = (() => { let c = 0; for (const v of seq) { if (v === 'BIG') c++; else break; } return c; })();
+            if (bigStreakLen >= 4) {
+                votes['SMALL'] += 7; signalCount++;
+                patterns.rule4 = { streakLen: bigStreakLen };
+            }
+
+            // ── RULE 5: 4+ consecutive SMALL → strong BIG reversal ──
+            const smallStreakLen = (() => { let c = 0; for (const v of seq) { if (v === 'SMALL') c++; else break; } return c; })();
+            if (smallStreakLen >= 4) {
+                votes['BIG'] += 7; signalCount++;
+                patterns.rule5 = { streakLen: smallStreakLen };
+            }
+
+            // ── Signal 6: Last 8 frequency bias ──
+            const last8 = seq.slice(0, 8);
+            const bigCount8  = last8.filter(s => s === 'BIG').length;
+            const smCount8   = last8.length - bigCount8;
+            if (bigCount8 >= 6)      { votes['SMALL'] += 3; signalCount++; }
+            else if (smCount8 >= 6)  { votes['BIG']   += 3; signalCount++; }
+            else if (bigCount8 >= 5) { votes['SMALL'] += 1; }
+            else if (smCount8 >= 5)  { votes['BIG']   += 1; }
+
+            // ── Signal 7: Anti-consecutive-loss correction ──
+            // If last 2+ predictions were wrong, boost opposite of current weak leader
+            const lossStrk = getRecentLossStreak();
+            if (lossStrk >= 2) {
+                // Find what we've been predicting wrong — boost opposite strongly
+                const recentPreds = gameHistory.filter(i => i.status === 'LOSS').slice(0, lossStrk);
+                if (recentPreds.length >= 2) {
+                    const wrongPred = recentPreds[0].predictedSize;
+                    const correction = wrongPred === 'BIG' ? 'SMALL' : 'BIG';
+                    const boost = lossStrk >= 3 ? 5 : 3;
+                    votes[correction] += boost;
+                    signalCount++;
+                    patterns.antiLoss = { lossStrk, correction };
+                }
+            }
+
+            // ── Fallback: no signals ──
+            if (signalCount === 0) {
+                // Slight bias toward opposite of last result
+                votes[seq[0] === 'BIG' ? 'SMALL' : 'BIG'] += 1;
+            }
+
+            const totalVotes = votes.BIG + votes.SMALL || 1;
+            const prediction = votes.BIG >= votes.SMALL ? 'BIG' : 'SMALL';
+            const dominance  = Math.max(votes.BIG, votes.SMALL) / totalVotes;
+            // Confidence: more conservative — avoids overconfident wrong calls
+            const rawConf    = Math.round(50 + dominance * 40 + Math.min(signalCount, 5) * 1.5);
+            const confidence = Math.min(88, Math.max(55, rawConf));
+            const bigProb    = Math.round((votes.BIG / totalVotes) * 100);
+
+            patterns.dominantTrend = prediction;
+            patterns.trendStrength = confidence / 100;
+            patterns.source        = r1 ? 'RULE1' : r2 ? 'RULE2' : patterns.rule4 ? 'RULE4' : patterns.rule5 ? 'RULE5' : stk.len >= 3 ? 'STREAK' : isAlternating(seq) ? 'ALT' : 'MULTI';
+
+            return {
+                prediction, confidence,
+                bigProb  : Math.max(15, Math.min(85, bigProb)),
+                smallProb: 100 - Math.max(15, Math.min(85, bigProb)),
+                scoreDiff: +((confidence - 50) / 5).toFixed(1),
+                scores   : { BIG: votes.BIG, SMALL: votes.SMALL },
+                patterns
+            };
+        }
+
+        // ── Clear old history once ─────────────────────────────────────────
+        const _HV = 'rules_v12';
+        if (localStorage.getItem('tx_history_version') !== _HV) {
+            localStorage.removeItem('tx_history_pro');
+            localStorage.setItem('tx_history_version', _HV);
+        }
+        let gameHistory = JSON.parse(localStorage.getItem('tx_history_pro')) || [];
+        let lockedPeriod = null;   // Period lock — one prediction per period
+        let lockedPred   = null;
+        let winStreak = 0, lossStreak = 0;
+        let engineStats = { BIG: { wins: 0, losses: 0 }, SMALL: { wins: 0, losses: 0 } };
+        function updateEngineStats(pred, won) { if (won) engineStats[pred].wins++; else engineStats[pred].losses++; }
+        function getAccuracy(side) { let t = engineStats[side].wins + engineStats[side].losses; return t === 0 ? 50 : Math.round((engineStats[side].wins / t) * 100); }
+
+        async function fetchGameResult() {
+            try {
+                const res = await fetch(`https://draw.ar-lottery01.com/WinGo/WinGo_1M/GetHistoryIssuePage.json?ts=${Date.now()}`);
+                const data = await res.json();
+                if (data?.data?.list?.length) processGameList(data.data.list);
+            } catch (e) { console.warn("API fetch error", e); }
+        }
+
+        function processGameList(list) {
+            const latest = list[0];
+            if (!latest || (!latest.issue && !latest.issueNumber)) return;
+            const latestIssue = latest.issue || latest.issueNumber;
+            let nextIssue;
+            try { nextIssue = (BigInt(latestIssue) + 1n).toString(); document.getElementById('displayPeriod').innerText = nextIssue.slice(-5); } catch(e) { return; }
+            let updated = false;
+            gameHistory.forEach(item => {
+                if (item.status === 'PENDING') {
+                    const actualResult = list.find(l => (l.issue || l.issueNumber) === item.issue);
+                    if (actualResult) {
+                        const actualNum = parseInt(actualResult.number);
+                        const actualSize = actualNum >= 5 ? 'BIG' : 'SMALL';
+                        item.actual = actualNum;
+                        item.actualSize = actualSize;
+                        const won = (item.predictedSize === actualSize);
+                        item.status = won ? 'WIN' : 'LOSS';
+                        updateEngineStats(item.predictedSize, won);
+                        if (won) { winStreak++; lossStreak = 0; } else { lossStreak++; winStreak = 0; }
+                        updated = true;
+                    }
+                }
+            });
+
+            // Always compute fresh prediction for current period
+            const recentNums = list.slice(0, Math.min(list.length, 10)).map(i => parseInt(i.number));
+            if (recentNums.length >= 3) {
+                const seq = recentNums.map(n => n >= 5 ? 'BIG' : 'SMALL');
+
+                if (nextIssue !== lockedPeriod) {
+                    // New period — compute & lock prediction
+                    const pred = dragonScoreEngine(seq);
+                    if (pred) {
+                        lockedPeriod = nextIssue;
+                        lockedPred   = pred;
+                        if (!gameHistory.find(i => i.issue === nextIssue)) {
+                            gameHistory.unshift({ issue: nextIssue, display: nextIssue.slice(-5), predictionType: 'SIZE', predictedSize: pred.prediction, status: 'PENDING', actual: null, actualSize: null, timestamp: Date.now(), confidence: pred.confidence, sizeEdge: pred.scoreDiff, bigProb: pred.bigProb, smallProb: pred.smallProb });
+                            updated = true;
+                        }
+                        updateDisplay(pred, seq);
+                    }
+                } else if (lockedPred) {
+                    // Same period — show locked prediction, don't change
+                    updateDisplay(lockedPred, seq);
+                }
+            }
+            if (updated) saveAndRefresh();
+            updateRecentNumbers(list.slice(0, 5));
+        }
+
+        function updateDisplay(predictionResult, seq) {
+            document.getElementById('displayPrediction').innerText = predictionResult.prediction;
+            document.getElementById('displayPrediction').className = `text-2xl font-bold ${predictionResult.confidence >= 80 ? 'text-green-500' : predictionResult.confidence >= 60 ? 'text-yellow-500' : 'text-red-500'}`;
+            document.getElementById('bigProbabilityValue').innerText = `${predictionResult.bigProb}%`;
+            document.getElementById('bigProbabilityBar').style.width = `${predictionResult.bigProb}%`;
+            document.getElementById('smallProbabilityValue').innerText = `${predictionResult.smallProb}%`;
+            document.getElementById('smallProbabilityBar').style.width = `${predictionResult.smallProb}%`;
+            document.getElementById('sizeEdgeValue').innerHTML = `${predictionResult.scoreDiff} pts`;
+            document.getElementById('sizePreference').innerHTML = predictionResult.prediction === 'BIG' ? '🔥 Engine leans BIG' : '🐉 Engine leans SMALL';
+            document.getElementById('activePredictionType').innerHTML = `SIZE: <span class="text-purple-900">${predictionResult.prediction}</span> (${predictionResult.confidence}% confidence)`;
+            document.getElementById('recommendedPrediction').innerText = predictionResult.prediction;
+            document.getElementById('recommendedConfidenceValue').innerText = `${predictionResult.confidence}%`;
+            let patternStrengthVal = predictionResult.scoreDiff > 6 ? "HIGH" : predictionResult.scoreDiff > 3 ? "MEDIUM" : "LOW";
+            document.getElementById('patternStrengthLabel').innerText = patternStrengthVal;
+            const patterns = predictionResult.patterns;
+            const patternList = [];
+            if (patterns.rule1 && patterns.rule1.matchLen >= 4) patternList.push(`🎯 Pattern Match (${patterns.rule1.matchLen}/6)`);
+            if (patterns.rule2 && patterns.rule2.matchLen >= 4) patternList.push(`🔢 Pair Cycle (${patterns.rule2.matchLen}/4)`);
+            if (patterns.streak && patterns.streak.len >= 2) patternList.push(`🔥 ${patterns.streak.len}x ${patterns.streak.val}${patterns.streak.len >= 4 ? ' → FLIP' : ''}`);
+            if (patterns.rule4) patternList.push(`🔴 Rule 4: ${patterns.rule4.streakLen}x BIG → SMALL Expected`);
+            if (patterns.rule5) patternList.push(`🔵 Rule 5: ${patterns.rule5.streakLen}x SMALL → BIG Expected`);
+            if (patterns.source === 'ALT')  patternList.push(`⚡ Alternating Detected`);
+            if (patterns.source === 'PAIR') patternList.push(`🔄 Pair Switch`);
+            if (patterns.dominantTrend) patternList.push(`📈 Trend: ${patterns.dominantTrend} (${Math.round(patterns.trendStrength*100)}%)`);
+            document.getElementById('methodInfo').innerHTML = patternList.map(p => `<span class="method-indicator bg-gradient-to-r from-purple-700 to-indigo-600 text-white text-xs">${p}</span>`).join('');
+            document.getElementById('trendSummary').innerHTML = `<div class="bg-gradient-to-r from-purple-50 to-blue-50 p-2 rounded-lg text-xs font-bold" style="color:#000000;">🔥 Dragon Score: BIG ${predictionResult.scores.BIG} | SMALL ${predictionResult.scores.SMALL} • Edge ${predictionResult.scoreDiff} pts</div>`;
+            document.getElementById('modelPerformance').innerHTML = `<div class="flex justify-between items-center p-2 bg-gray-50 rounded-lg"><span class="text-xs font-bold">BIG Accuracy</span><span class="text-xs font-bold text-green-600">${getAccuracy('BIG')}%</span></div><div class="flex justify-between items-center p-2 bg-gray-50 rounded-lg"><span class="text-xs font-bold">SMALL Accuracy</span><span class="text-xs font-bold text-blue-600">${getAccuracy('SMALL')}%</span></div>`;
+            document.getElementById('modelAccuracyStats').innerHTML = `<div class="flex justify-between p-2 bg-gray-50 rounded-lg"><span class="text-xs font-bold">BIG Model</span><span class="text-xs font-bold text-green-600">${getAccuracy('BIG')}%</span></div><div class="flex justify-between p-2 bg-gray-50 rounded-lg"><span class="text-xs font-bold">SMALL Model</span><span class="text-xs font-bold text-blue-600">${getAccuracy('SMALL')}%</span></div>`;
+            document.getElementById('patternStats').innerHTML = `<div class="bg-purple-50 p-3 rounded-lg"><p class="text-xs text-purple-600 font-bold">Dragon Edge</p><p class="text-xl font-bold text-purple-700">${predictionResult.scoreDiff}</p></div><div class="bg-indigo-50 p-3 rounded-lg"><p class="text-xs text-indigo-600 font-bold">Confidence</p><p class="text-xl font-bold text-indigo-700">${predictionResult.confidence}%</p></div><div class="bg-amber-50 p-3 rounded-lg"><p class="text-xs text-amber-600 font-bold">BIG Prob</p><p class="text-xl font-bold text-amber-700">${predictionResult.bigProb}%</p></div><div class="bg-cyan-50 p-3 rounded-lg"><p class="text-xs text-cyan-600 font-bold">SMALL Prob</p><p class="text-xl font-bold text-cyan-700">${predictionResult.smallProb}%</p></div>`;
+        }
+
+        function updateRecentNumbers(items) {
+            const container = document.getElementById('recentNumbers');
+            if (container) container.innerHTML = items.map(item => { const num = parseInt(item.number); const bgColor = num >= 5 ? 'bg-gradient-to-br from-blue-500 to-cyan-500' : 'bg-gradient-to-br from-purple-500 to-pink-500'; const borderGlow = num >=5 ? 'shadow-[0_0_0_2px_#3b82f6]' : 'shadow-[0_0_0_2px_#a855f7]'; return `<div class="relative"><span class="w-8 h-8 flex items-center justify-center rounded-full text-xs font-bold text-white ${bgColor} ${borderGlow}">${num}</span></div>`; }).join('');
+        }
+
+        function saveAndRefresh() {
+            if (gameHistory.length > 50) gameHistory = gameHistory.slice(0, 50);
+            localStorage.setItem('tx_history_pro', JSON.stringify(gameHistory));
+            updateUI();
+        }
+
+        function updateUI() {
+            const container = document.getElementById('historyContainer');
+            if (!container) return;
+            if (gameHistory.length === 0) container.innerHTML = `<div class="text-center py-8"><div class="w-12 h-12 bg-gray-100 rounded-xl flex items-center justify-center mx-auto mb-3"><i class="fas fa-history text-gray-400 text-xl"></i></div><p class="text-gray-400 text-sm font-medium">Waiting for API data...</p></div>`;
+            else container.innerHTML = gameHistory.map(item => `<div class="history-item ${item.status === 'WIN' ? 'win' : item.status === 'LOSS' ? 'loss' : 'pending'}"><div class="flex-1"><div class="flex items-center gap-2 mb-2"><p class="text-xs font-bold text-gray-400 uppercase">#${item.display}</p><span class="text-[10px] font-bold px-2 py-1 rounded-lg ${item.confidence >= 80 ? 'bg-green-100 text-green-600' : item.confidence >= 60 ? 'bg-yellow-100 text-yellow-600' : 'bg-red-100 text-red-600'}">${item.confidence}% Conf</span></div><p class="text-sm font-bold">SIZE: <span class="text-accent-primary">${item.predictedSize}</span></p><div class="flex gap-2 mt-1"><span class="text-[10px] bg-purple-100 text-purple-600 px-2 py-0.5 rounded-full">Score Edge: ${item.sizeEdge}</span></div>${item.actual !== null ? `<div class="border-t border-gray-100 pt-2 mt-2"><p class="text-xs text-gray-600">Result: ${item.actual} (${item.actualSize})</p></div>` : `<div class="border-t border-gray-100 pt-2 mt-2"><p class="text-xs text-orange-500 font-medium"><i class="fas fa-clock"></i> Result Pending...</p></div>`}</div><div class="text-right ml-4 min-w-max"><span class="status-badge ${item.status === 'WIN' ? 'bg-green-100 text-green-600 border border-green-200' : item.status === 'PENDING' ? 'bg-orange-100 text-orange-600 border border-orange-200' : 'bg-red-100 text-red-600 border border-red-200'}">${item.status}</span><p class="text-xs text-gray-400 mt-2 font-medium">${new Date(item.timestamp).toLocaleTimeString()}</p></div></div>`).join('');
+            
+            const completed = gameHistory.filter(i => i.status !== 'PENDING');
+            const wins = completed.filter(i => i.status === 'WIN').length;
+            const accuracy = completed.length ? Math.round((wins / completed.length) * 100) : 0;
+            document.getElementById('statAccuracy').innerText = accuracy + "%";
+            document.getElementById('statWins').innerText = wins;
+            document.getElementById('statLosses').innerText = completed.length - wins;
+            document.getElementById('totalPreds').innerText = completed.length;
+            const streakDiv = document.getElementById('streakInfo');
+            if (winStreak > 0) streakDiv.innerHTML = `<div class="w-2 h-2 rounded-full bg-green-500"></div><p class="text-base font-bold text-green-600">${winStreak}W</p>`;
+            else if (lossStreak > 0) streakDiv.innerHTML = `<div class="w-2 h-2 rounded-full bg-red-500"></div><p class="text-base font-bold text-red-600">${lossStreak}L</p>`;
+            else streakDiv.innerHTML = `<div class="w-2 h-2 rounded-full bg-gray-300"></div><p class="text-base font-bold">-</p>`;
+        }
+
+        window.clearHistory = function() { 
+            if (confirm("Clear history?")) { 
+                gameHistory = []; winStreak = 0; lossStreak = 0; 
+                engineStats = { BIG:{wins:0,losses:0}, SMALL:{wins:0,losses:0} }; 
+                localStorage.setItem('tx_history_pro', '[]'); 
+                updateUI(); 
+            } 
+        };
+
+        // Navigation inside main app
+        function initMainDashboard() {
+            updateUI();
+            fetchGameResult();
+            if (window.fetchInterval) clearInterval(window.fetchInterval);
+            window.fetchInterval = setInterval(fetchGameResult, 5000);
+            document.querySelectorAll('#mainAppContainer .nav-link').forEach(link => {
+                link.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const id = link.getAttribute('data-section');
+                    document.querySelectorAll('#mainAppContainer .nav-link').forEach(l => l.classList.remove('active'));
+                    link.classList.add('active');
+                    document.querySelectorAll('#mainAppContainer .content-section').forEach(s => s.classList.remove('active'));
+                    document.getElementById(id)?.classList.add('active');
+                });
+            });
+        }
+
+        // Initial route based on saved state
+        if (isLoggedIn && selectedPlatform) { startKeyValidation(); showMainApp(); }
+        else if (isLoggedIn) { startKeyValidation(); showPlatformSelection(); }
+        else showLogin();
+    </script>
 </body>
 </html>
