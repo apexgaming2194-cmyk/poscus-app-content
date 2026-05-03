@@ -630,18 +630,22 @@
             }
         });
 
-        // ==================== PREDICTION ENGINE v15.0 — 6 Rules Only ====================
-        // Rule 1: B S B S B S  (alternating, starting B)
+        // ==================== PREDICTION ENGINE v16.0 — Real Cycle Patterns Only ====================
+        // Sirf real repeating cycle patterns — koi streak guess nahi, koi fallback nahi
+        // Agar koi pattern match nahi → WAIT (skip karo, loss mat lo)
+
+        // Rule 1: BSBSBS  (zigzag alternating)
         const RULE1 = ['BIG','SMALL','BIG','SMALL','BIG','SMALL'];
-        // Rule 2: B B S S B B S S  (pair cycle) + reverse S S B B S S B B
+        // Rule 2A: BBSSBBSS  |  Rule 2B: SSBBSSBB  (pair cycle + reverse)
         const RULE2A = ['BIG','BIG','SMALL','SMALL'];
         const RULE2B = ['SMALL','SMALL','BIG','BIG'];
-        // Rule 5: B B S B B S
-        const RULE5 = ['BIG','BIG','SMALL','BIG','BIG','SMALL'];
-        // Rule 6: B S S B B S
-        const RULE6 = ['BIG','SMALL','SMALL','BIG','BIG','SMALL'];
+        // Rule 5: BBSBBS
+        const RULE5  = ['BIG','BIG','SMALL','BIG','BIG','SMALL'];
+        // Rule 6: BSSBBS
+        const RULE6  = ['BIG','SMALL','SMALL','BIG','BIG','SMALL'];
 
-        // Match a cycle pattern (oldest-first input)
+        // Cycle matcher — seqOldFirst = oldest result first
+        // Tries every rotation offset so partial cycles also match
         function matchCycle(seqOldFirst, pattern, minLen) {
             const pLen = pattern.length, n = seqOldFirst.length;
             if (n < minLen) return null;
@@ -650,110 +654,101 @@
                 for (let i = 0; i < n; i++) {
                     if (seqOldFirst[i] !== pattern[(offset + i) % pLen]) { ok = false; break; }
                 }
-                if (ok) return { next: pattern[(offset + n) % pLen], matchLen: n };
+                if (ok) return { next: pattern[(offset + n) % pLen], matchLen: n, offset };
             }
             return null;
         }
 
-        // Count leading streak of a value (seq is newest-first)
-        function getStreakLen(seq, val) {
-            let c = 0;
-            for (const v of seq) { if (v === val) c++; else break; }
-            return c;
-        }
-
         function dragonScoreEngine(seq) {
-            if (!seq || seq.length < 3) return null;
-            const of = [...seq].reverse(); // oldest first
+            if (!seq || seq.length < 4) return null; // need at least 4 results
+            const of  = [...seq].reverse(); // oldest first
             const len = of.length;
-            const patterns = {};
-            const votes = { BIG: 0, SMALL: 0 };
-            let signalCount = 0;
-            let activeRule = null;
+            const patterns  = {};
+            const matched   = []; // which rules fired
+            let bigVotes = 0, smallVotes = 0;
 
-            // ── RULE 1: BSBSBS cycle (min 4 match) ──
+            // ── RULE 1: BSBSBS zigzag — try window 4 to 6 ──
             let r1 = null;
             for (let w = Math.min(len, 6); w >= 4; w--) {
                 r1 = matchCycle(of.slice(len - w), RULE1, 4);
                 if (r1) break;
             }
-            if (r1) { votes[r1.next] += 5; signalCount++; patterns.rule1 = r1; activeRule = 'RULE1'; }
+            if (r1) {
+                r1.next === 'BIG' ? bigVotes += 5 : smallVotes += 5;
+                patterns.rule1 = r1; matched.push('🎯 Rule 1: Zigzag ' + r1.next);
+            }
 
-            // ── RULE 2: BBSSBBSS or reverse SSBBSSBB cycle (min 4 match) ──
-            let r2 = null;
+            // ── RULE 2: BBSS / SSBB pair cycle — try window 4 to 8 ──
+            let r2 = null, r2variant = '';
             for (let w = Math.min(len, 8); w >= 4; w--) {
                 r2 = matchCycle(of.slice(len - w), RULE2A, 4);
-                if (r2) break;
+                if (r2) { r2variant = 'BBSS'; break; }
                 r2 = matchCycle(of.slice(len - w), RULE2B, 4);
-                if (r2) break;
+                if (r2) { r2variant = 'SSBB'; break; }
             }
-            if (r2) { votes[r2.next] += 5; signalCount++; patterns.rule2 = r2; if (!activeRule) activeRule = 'RULE2'; }
-
-            // ── RULE 3: 6 consecutive SMALL → BIG (active only if 3+ SMALL streak exists) ──
-            const smallStreak = getStreakLen(seq, 'SMALL');
-            if (smallStreak >= 3) {
-                // Rule 3 active — predict BIG (reversal)
-                votes['BIG'] += (smallStreak >= 6 ? 8 : smallStreak >= 5 ? 6 : 4);
-                signalCount++;
-                patterns.rule3 = { streakLen: smallStreak };
-                if (!activeRule) activeRule = 'RULE3';
+            if (r2) {
+                r2.next === 'BIG' ? bigVotes += 5 : smallVotes += 5;
+                patterns.rule2 = r2; matched.push('🔢 Rule 2: ' + r2variant + ' → ' + r2.next);
             }
 
-            // ── RULE 4: 5 consecutive BIG → SMALL (active only if 3+ BIG streak exists) ──
-            const bigStreak = getStreakLen(seq, 'BIG');
-            if (bigStreak >= 3) {
-                // Rule 4 active — predict SMALL (reversal)
-                votes['SMALL'] += (bigStreak >= 5 ? 8 : bigStreak >= 4 ? 6 : 4);
-                signalCount++;
-                patterns.rule4 = { streakLen: bigStreak };
-                if (!activeRule) activeRule = 'RULE4';
-            }
-
-            // ── RULE 5: BBSBBS cycle (min 4 match) ──
+            // ── RULE 5: BBSBBS cycle — try window 4 to 6 ──
             let r5 = null;
             for (let w = Math.min(len, 6); w >= 4; w--) {
                 r5 = matchCycle(of.slice(len - w), RULE5, 4);
                 if (r5) break;
             }
-            if (r5) { votes[r5.next] += 5; signalCount++; patterns.rule5 = r5; if (!activeRule) activeRule = 'RULE5'; }
+            if (r5) {
+                r5.next === 'BIG' ? bigVotes += 5 : smallVotes += 5;
+                patterns.rule5 = r5; matched.push('⚡ Rule 5: BBSBBS → ' + r5.next);
+            }
 
-            // ── RULE 6: BSSBBS cycle (min 4 match) ──
+            // ── RULE 6: BSSBBS cycle — try window 4 to 6 ──
             let r6 = null;
             for (let w = Math.min(len, 6); w >= 4; w--) {
                 r6 = matchCycle(of.slice(len - w), RULE6, 4);
                 if (r6) break;
             }
-            if (r6) { votes[r6.next] += 5; signalCount++; patterns.rule6 = r6; if (!activeRule) activeRule = 'RULE6'; }
-
-            // ── Fallback: no rule matched — opposite of last result ──
-            if (signalCount === 0) {
-                votes[seq[0] === 'BIG' ? 'SMALL' : 'BIG'] += 1;
-                activeRule = 'NONE';
+            if (r6) {
+                r6.next === 'BIG' ? bigVotes += 5 : smallVotes += 5;
+                patterns.rule6 = r6; matched.push('🔄 Rule 6: BSSBBS → ' + r6.next);
             }
 
-            const totalVotes = votes.BIG + votes.SMALL || 1;
-            const prediction = votes.BIG >= votes.SMALL ? 'BIG' : 'SMALL';
-            const dominance  = Math.max(votes.BIG, votes.SMALL) / totalVotes;
-            const rawConf    = Math.round(50 + dominance * 40 + Math.min(signalCount, 5) * 2);
-            const confidence = Math.min(88, Math.max(55, rawConf));
-            const bigProb    = Math.round((votes.BIG / totalVotes) * 100);
+            // ── NO PATTERN MATCHED → WAIT, don't predict ──
+            if (matched.length === 0) {
+                return {
+                    prediction: 'WAIT', confidence: 0, isWait: true,
+                    bigProb: 50, smallProb: 50, scoreDiff: 0,
+                    scores: { BIG: 0, SMALL: 0 },
+                    patterns: { source: 'WAIT', dominantTrend: 'WAIT', trendStrength: 0, matched: [] }
+                };
+            }
+
+            // ── Multiple rules agree → higher confidence ──
+            const totalVotes = bigVotes + smallVotes || 1;
+            const prediction = bigVotes >= smallVotes ? 'BIG' : 'SMALL';
+            const dominance  = Math.max(bigVotes, smallVotes) / totalVotes;
+            // Base conf from how many rules agree + dominance
+            const rawConf    = Math.round(55 + dominance * 30 + matched.length * 4);
+            const confidence = Math.min(90, Math.max(58, rawConf));
+            const bigProb    = Math.round((bigVotes / totalVotes) * 100);
 
             patterns.dominantTrend = prediction;
             patterns.trendStrength = confidence / 100;
-            patterns.source        = activeRule || 'MULTI';
+            patterns.source        = matched.length > 1 ? 'MULTI' : (r1 ? 'RULE1' : r2 ? 'RULE2' : r5 ? 'RULE5' : 'RULE6');
+            patterns.matched       = matched;
 
             return {
-                prediction, confidence,
+                prediction, confidence, isWait: false,
                 bigProb  : Math.max(15, Math.min(85, bigProb)),
                 smallProb: 100 - Math.max(15, Math.min(85, bigProb)),
                 scoreDiff: +((confidence - 50) / 5).toFixed(1),
-                scores   : { BIG: votes.BIG, SMALL: votes.SMALL },
+                scores   : { BIG: bigVotes, SMALL: smallVotes },
                 patterns
             };
         }
 
         // ── Clear old history once ─────────────────────────────────────────
-        const _HV = 'rules_v15';
+        const _HV = 'rules_v16';
         if (localStorage.getItem('tx_history_version') !== _HV) {
             localStorage.removeItem('tx_history_pro');
             localStorage.setItem('tx_history_version', _HV);
@@ -809,7 +804,8 @@
                     if (pred) {
                         lockedPeriod = nextIssue;
                         lockedPred   = pred;
-                        if (!gameHistory.find(i => i.issue === nextIssue)) {
+                        // Only add to history if NOT a WAIT — don't track skipped rounds
+                        if (!pred.isWait && !gameHistory.find(i => i.issue === nextIssue)) {
                             gameHistory.unshift({ issue: nextIssue, display: nextIssue.slice(-5), predictionType: 'SIZE', predictedSize: pred.prediction, status: 'PENDING', actual: null, actualSize: null, timestamp: Date.now(), confidence: pred.confidence, sizeEdge: pred.scoreDiff, bigProb: pred.bigProb, smallProb: pred.smallProb });
                             updated = true;
                         }
@@ -825,33 +821,61 @@
         }
 
         function updateDisplay(predictionResult, seq) {
-            document.getElementById('displayPrediction').innerText = predictionResult.prediction;
-            document.getElementById('displayPrediction').className = `text-2xl font-bold ${predictionResult.confidence >= 80 ? 'text-green-500' : predictionResult.confidence >= 60 ? 'text-yellow-500' : 'text-red-500'}`;
+            const isWait = predictionResult.isWait;
+
+            // Main prediction display
+            const predEl = document.getElementById('displayPrediction');
+            if (isWait) {
+                predEl.innerText = '⏳ WAIT';
+                predEl.className = 'text-2xl font-bold text-gray-400';
+            } else {
+                predEl.innerText = predictionResult.prediction;
+                predEl.className = `text-2xl font-bold ${predictionResult.confidence >= 78 ? 'text-green-500' : predictionResult.confidence >= 65 ? 'text-yellow-500' : 'text-orange-400'}`;
+            }
+
+            // Probability bars
             document.getElementById('bigProbabilityValue').innerText = `${predictionResult.bigProb}%`;
             document.getElementById('bigProbabilityBar').style.width = `${predictionResult.bigProb}%`;
             document.getElementById('smallProbabilityValue').innerText = `${predictionResult.smallProb}%`;
             document.getElementById('smallProbabilityBar').style.width = `${predictionResult.smallProb}%`;
-            document.getElementById('sizeEdgeValue').innerHTML = `${predictionResult.scoreDiff} pts`;
-            document.getElementById('sizePreference').innerHTML = predictionResult.prediction === 'BIG' ? '🔥 Engine leans BIG' : '🐉 Engine leans SMALL';
-            document.getElementById('activePredictionType').innerHTML = `SIZE: <span class="text-purple-900">${predictionResult.prediction}</span> (${predictionResult.confidence}% confidence)`;
-            document.getElementById('recommendedPrediction').innerText = predictionResult.prediction;
-            document.getElementById('recommendedConfidenceValue').innerText = `${predictionResult.confidence}%`;
-            let patternStrengthVal = predictionResult.scoreDiff > 6 ? "HIGH" : predictionResult.scoreDiff > 3 ? "MEDIUM" : "LOW";
+
+            document.getElementById('sizeEdgeValue').innerHTML = isWait ? '– pts' : `${predictionResult.scoreDiff} pts`;
+            document.getElementById('sizePreference').innerHTML = isWait
+                ? '🔍 Scanning for pattern...'
+                : predictionResult.prediction === 'BIG' ? '🔥 Engine leans BIG' : '🐉 Engine leans SMALL';
+
+            document.getElementById('activePredictionType').innerHTML = isWait
+                ? `SIZE: <span class="text-gray-500">⏳ WAIT — No pattern yet</span>`
+                : `SIZE: <span class="text-purple-900">${predictionResult.prediction}</span> (${predictionResult.confidence}% confidence)`;
+
+            const recEl = document.getElementById('recommendedPrediction');
+            recEl.innerText = isWait ? '⏳ WAIT' : predictionResult.prediction;
+            recEl.style.color = isWait ? '#94a3b8' : '';
+
+            document.getElementById('recommendedConfidenceValue').innerText = isWait ? '–' : `${predictionResult.confidence}%`;
+
+            let patternStrengthVal = isWait ? 'NONE' : predictionResult.scoreDiff > 6 ? 'HIGH' : predictionResult.scoreDiff > 3 ? 'MEDIUM' : 'LOW';
             document.getElementById('patternStrengthLabel').innerText = patternStrengthVal;
+
+            // Pattern tags — use matched array from engine
             const patterns = predictionResult.patterns;
-            const patternList = [];
-            if (patterns.rule1) patternList.push(`🎯 Rule 1: BSBSBS (${patterns.rule1.matchLen}/6)`);
-            if (patterns.rule2) patternList.push(`🔢 Rule 2: BBSS Cycle (${patterns.rule2.matchLen}/8)`);
-            if (patterns.rule3) patternList.push(`🔵 Rule 3: ${patterns.rule3.streakLen}x SMALL → BIG Expected`);
-            if (patterns.rule4) patternList.push(`🔴 Rule 4: ${patterns.rule4.streakLen}x BIG → SMALL Expected`);
-            if (patterns.rule5) patternList.push(`⚡ Rule 5: BBSBBS (${patterns.rule5.matchLen}/6)`);
-            if (patterns.rule6) patternList.push(`🔄 Rule 6: BSSBBS (${patterns.rule6.matchLen}/6)`);
-            if (patterns.dominantTrend) patternList.push(`📈 Trend: ${patterns.dominantTrend} (${Math.round(patterns.trendStrength*100)}%)`);
-            document.getElementById('methodInfo').innerHTML = patternList.map(p => `<span class="method-indicator bg-gradient-to-r from-purple-700 to-indigo-600 text-white text-xs">${p}</span>`).join('');
-            document.getElementById('trendSummary').innerHTML = `<div class="bg-gradient-to-r from-purple-50 to-blue-50 p-2 rounded-lg text-xs font-bold" style="color:#000000;">🔥 Dragon Score: BIG ${predictionResult.scores.BIG} | SMALL ${predictionResult.scores.SMALL} • Edge ${predictionResult.scoreDiff} pts</div>`;
+            const patternList = patterns.matched || [];
+            if (patterns.rule1 && !patternList.length) patternList.push(`🎯 Rule 1: Zigzag`);
+            if (patterns.rule2 && !patternList.length) patternList.push(`🔢 Rule 2: Pair Cycle`);
+            if (patterns.rule5 && !patternList.length) patternList.push(`⚡ Rule 5: BBSBBS`);
+            if (patterns.rule6 && !patternList.length) patternList.push(`🔄 Rule 6: BSSBBS`);
+
+            document.getElementById('methodInfo').innerHTML = isWait
+                ? `<span class="method-indicator bg-gray-100 text-gray-400 text-xs px-2 py-1 rounded-lg">⏳ No pattern detected — skip this round</span>`
+                : patternList.map(p => `<span class="method-indicator bg-gradient-to-r from-purple-700 to-indigo-600 text-white text-xs px-2 py-1 rounded-lg mr-1 mb-1 inline-block">${p}</span>`).join('');
+
+            document.getElementById('trendSummary').innerHTML = isWait
+                ? `<div class="bg-gray-50 p-2 rounded-lg text-xs font-bold text-gray-400">🔍 Waiting for a recognizable pattern...</div>`
+                : `<div class="bg-gradient-to-r from-purple-50 to-blue-50 p-2 rounded-lg text-xs font-bold" style="color:#000000;">🔥 Score: BIG ${predictionResult.scores.BIG} | SMALL ${predictionResult.scores.SMALL} • Edge ${predictionResult.scoreDiff} pts • ${patterns.matched?.length || 1} rule(s) matched</div>`;
+
             document.getElementById('modelPerformance').innerHTML = `<div class="flex justify-between items-center p-2 bg-gray-50 rounded-lg"><span class="text-xs font-bold">BIG Accuracy</span><span class="text-xs font-bold text-green-600">${getAccuracy('BIG')}%</span></div><div class="flex justify-between items-center p-2 bg-gray-50 rounded-lg"><span class="text-xs font-bold">SMALL Accuracy</span><span class="text-xs font-bold text-blue-600">${getAccuracy('SMALL')}%</span></div>`;
             document.getElementById('modelAccuracyStats').innerHTML = `<div class="flex justify-between p-2 bg-gray-50 rounded-lg"><span class="text-xs font-bold">BIG Model</span><span class="text-xs font-bold text-green-600">${getAccuracy('BIG')}%</span></div><div class="flex justify-between p-2 bg-gray-50 rounded-lg"><span class="text-xs font-bold">SMALL Model</span><span class="text-xs font-bold text-blue-600">${getAccuracy('SMALL')}%</span></div>`;
-            document.getElementById('patternStats').innerHTML = `<div class="bg-purple-50 p-3 rounded-lg"><p class="text-xs text-purple-600 font-bold">Dragon Edge</p><p class="text-xl font-bold text-purple-700">${predictionResult.scoreDiff}</p></div><div class="bg-indigo-50 p-3 rounded-lg"><p class="text-xs text-indigo-600 font-bold">Confidence</p><p class="text-xl font-bold text-indigo-700">${predictionResult.confidence}%</p></div><div class="bg-amber-50 p-3 rounded-lg"><p class="text-xs text-amber-600 font-bold">BIG Prob</p><p class="text-xl font-bold text-amber-700">${predictionResult.bigProb}%</p></div><div class="bg-cyan-50 p-3 rounded-lg"><p class="text-xs text-cyan-600 font-bold">SMALL Prob</p><p class="text-xl font-bold text-cyan-700">${predictionResult.smallProb}%</p></div>`;
+            document.getElementById('patternStats').innerHTML = `<div class="bg-purple-50 p-3 rounded-lg"><p class="text-xs text-purple-600 font-bold">Dragon Edge</p><p class="text-xl font-bold text-purple-700">${isWait ? '–' : predictionResult.scoreDiff}</p></div><div class="bg-indigo-50 p-3 rounded-lg"><p class="text-xs text-indigo-600 font-bold">Confidence</p><p class="text-xl font-bold text-indigo-700">${isWait ? '–' : predictionResult.confidence + '%'}</p></div><div class="bg-amber-50 p-3 rounded-lg"><p class="text-xs text-amber-600 font-bold">BIG Prob</p><p class="text-xl font-bold text-amber-700">${predictionResult.bigProb}%</p></div><div class="bg-cyan-50 p-3 rounded-lg"><p class="text-xs text-cyan-600 font-bold">SMALL Prob</p><p class="text-xl font-bold text-cyan-700">${predictionResult.smallProb}%</p></div>`;
         }
 
         function updateRecentNumbers(items) {
