@@ -635,9 +635,13 @@
         // Jab strong pattern ho → HIGH confidence
         // Jab koi pattern na ho → fallback logic + LOW/RISKY warning
 
-        // ── Only 2 Active Rules ──
-        const RULE_BBSSBBSS = ['BIG','BIG','SMALL','SMALL','BIG','BIG','SMALL','SMALL'];
-        const RULE_SSBBSSBB = ['SMALL','SMALL','BIG','BIG','SMALL','SMALL','BIG','BIG'];
+        const RULE1 = ['BIG','SMALL','BIG','SMALL','BIG','SMALL'];              // BSBSBS Zigzag
+        const RULE2A = ['BIG','BIG','SMALL','SMALL','BIG','BIG','SMALL','SMALL']; // BBSSBBSS
+        const RULE2B = ['SMALL','SMALL','BIG','BIG','SMALL','SMALL','BIG','BIG']; // SSBBSSBB
+        const RULE3  = ['SMALL','SMALL','SMALL','SMALL','SMALL','SMALL'];         // SSSSSS streak
+        const RULE4  = ['BIG','BIG','BIG','BIG','BIG'];                           // BBBBB streak
+        const RULE5  = ['BIG','BIG','SMALL','BIG','BIG','SMALL'];                 // BBSBBS
+        const RULE6  = ['BIG','SMALL','SMALL','BIG','BIG','SMALL'];               // BSSBBS
 
         function matchCycle(seqOldFirst, pattern, minLen) {
             const pLen = pattern.length, n = seqOldFirst.length;
@@ -653,73 +657,111 @@
         }
 
         function dragonScoreEngine(seq) {
-            if (!seq || seq.length < 4) return { isWait: true };
-            const of  = [...seq].reverse();  // oldest first
+            if (!seq || seq.length < 4) return null;
+            const of  = [...seq].reverse(); // oldest first
             const len = of.length;
-            const patterns = {};
-            const matched  = [];
-            let bigVotes = 0, smallVotes = 0;
-            let patternFound = false;
+            const matched = [];
+            let bigVotes = 0, smallVotes = 0, patternFound = false;
 
-            // ── RULE A: BBSSBBSS (8-cycle) ──
-            let rA = null;
-            for (let w = Math.min(len, 8); w >= 4; w--) {
-                rA = matchCycle(of.slice(len - w), RULE_BBSSBBSS, 4);
-                if (rA) break;
+            // ── RULE 1: BSBSBS Zigzag ──
+            let r1 = null;
+            for (let w = Math.min(len, 6); w >= 4; w--) {
+                r1 = matchCycle(of.slice(len - w), RULE1, 4);
+                if (r1) break;
             }
-            if (rA) {
-                rA.next === 'BIG' ? bigVotes += 8 : smallVotes += 8;
-                patterns.ruleA = rA;
-                matched.push('🔵🔵🟣🟣 BBSSBBSS → ' + rA.next);
+            if (r1) {
+                r1.next === 'BIG' ? bigVotes += 7 : smallVotes += 7;
+                matched.push('🎯 Rule 1: BSBSBS → ' + r1.next);
                 patternFound = true;
             }
 
-            // ── RULE B: SSBBSSBB (8-cycle) ──
-            let rB = null;
+            // ── RULE 2: BBSSBBSS / SSBBSSBB ──
+            let r2 = null, r2v = '';
             for (let w = Math.min(len, 8); w >= 4; w--) {
-                rB = matchCycle(of.slice(len - w), RULE_SSBBSSBB, 4);
-                if (rB) break;
+                r2 = matchCycle(of.slice(len - w), RULE2A, 4);
+                if (r2) { r2v = 'BBSSBBSS'; break; }
+                r2 = matchCycle(of.slice(len - w), RULE2B, 4);
+                if (r2) { r2v = 'SSBBSSBB'; break; }
             }
-            if (rB) {
-                rB.next === 'BIG' ? bigVotes += 8 : smallVotes += 8;
-                patterns.ruleB = rB;
-                matched.push('🟣🟣🔵🔵 SSBBSSBB → ' + rB.next);
+            if (r2) {
+                r2.next === 'BIG' ? bigVotes += 8 : smallVotes += 8;
+                matched.push('🔵 Rule 2: ' + r2v + ' → ' + r2.next);
                 patternFound = true;
             }
 
-            // ── No pattern → WAIT, do not predict ──
-            if (!patternFound) {
-                return { isWait: true };
+            // ── RULE 3: SSSSSS (Small streak → expect BIG reversal) ──
+            let r3 = null;
+            for (let w = Math.min(len, 6); w >= 4; w--) {
+                r3 = matchCycle(of.slice(len - w), RULE3, 4);
+                if (r3) break;
             }
+            if (r3) {
+                r3.next === 'BIG' ? bigVotes += 6 : smallVotes += 6;
+                matched.push('🟣 Rule 3: SSSSSS → ' + r3.next);
+                patternFound = true;
+            }
+
+            // ── RULE 4: BBBBB (Big streak → expect SMALL reversal) ──
+            let r4 = null;
+            for (let w = Math.min(len, 5); w >= 4; w--) {
+                r4 = matchCycle(of.slice(len - w), RULE4, 4);
+                if (r4) break;
+            }
+            if (r4) {
+                r4.next === 'BIG' ? bigVotes += 6 : smallVotes += 6;
+                matched.push('🔴 Rule 4: BBBBB → ' + r4.next);
+                patternFound = true;
+            }
+
+            // ── RULE 5: BBSBBS ──
+            let r5 = null;
+            for (let w = Math.min(len, 6); w >= 4; w--) {
+                r5 = matchCycle(of.slice(len - w), RULE5, 4);
+                if (r5) break;
+            }
+            if (r5) {
+                r5.next === 'BIG' ? bigVotes += 7 : smallVotes += 7;
+                matched.push('⚡ Rule 5: BBSBBS → ' + r5.next);
+                patternFound = true;
+            }
+
+            // ── RULE 6: BSSBBS ──
+            let r6 = null;
+            for (let w = Math.min(len, 6); w >= 4; w--) {
+                r6 = matchCycle(of.slice(len - w), RULE6, 4);
+                if (r6) break;
+            }
+            if (r6) {
+                r6.next === 'BIG' ? bigVotes += 7 : smallVotes += 7;
+                matched.push('🔄 Rule 6: BSSBBS → ' + r6.next);
+                patternFound = true;
+            }
+
+            // ── No pattern → WAIT ──
+            if (!patternFound) return { isWait: true };
 
             const totalVotes = bigVotes + smallVotes || 1;
             const prediction = bigVotes >= smallVotes ? 'BIG' : 'SMALL';
             const dominance  = Math.max(bigVotes, smallVotes) / totalVotes;
-            const rawConf    = Math.round(65 + dominance * 20 + matched.length * 4);
-            const confidence = Math.min(92, Math.max(65, rawConf));
+            const rawConf    = Math.round(62 + dominance * 22 + matched.length * 3);
+            const confidence = Math.min(92, Math.max(62, rawConf));
             const bigProb    = Math.round((bigVotes / totalVotes) * 100);
 
-            // Trend analysis from last 7
-            const last7      = seq.slice(0, 7);
-            const bigCount   = last7.filter(v => v === 'BIG').length;
-            const smlCount   = last7.length - bigCount;
-            let streak = 1;
+            // Trend from last 7
+            const last7  = seq.slice(0, 7);
+            const bigC   = last7.filter(v => v === 'BIG').length;
+            const smlC   = last7.length - bigC;
+            let streak   = 1;
             for (let i = 1; i < seq.length; i++) { if (seq[i] === seq[0]) streak++; else break; }
-            const trendLabel = bigCount > smlCount ? '📈 BIG Trending' : bigCount < smlCount ? '📉 SMALL Trending' : '↔️ Balanced';
-            const momentum   = seq[0] === seq[1] && seq[1] === seq[2] ? '🔥 Strong Streak' : '🔄 Switching';
+            const trendLabel = bigC > smlC ? '📈 BIG Trending' : bigC < smlC ? '📉 SMALL Trending' : '↔️ Balanced';
+            const last3bigs  = seq.slice(0, 3).filter(v => v === 'BIG').length;
+            const momentum   = last3bigs >= 2 ? '🔥 BIG Momentum' : '🐉 SMALL Momentum';
 
-            patterns.dominantTrend = prediction;
-            patterns.trendStrength = confidence / 100;
-            patterns.source        = matched.length > 1 ? 'DUAL-RULE' : (rA ? 'BBSSBBSS' : 'SSBBSSBB');
-            patterns.matched       = matched;
-            patterns.riskLevel     = 'LOW';
-            patterns.patternFound  = true;
-            patterns.trendLabel    = trendLabel;
-            patterns.momentum      = momentum;
-            patterns.bigCount      = bigCount;
-            patterns.smlCount      = smlCount;
-            patterns.streak        = streak;
-            patterns.streakSide    = seq[0];
+            const patterns = {
+                matched, riskLevel: 'LOW', patternFound: true,
+                trendLabel, momentum, bigC, smlC,
+                streak, streakSide: seq[0]
+            };
 
             return {
                 prediction, confidence, isWait: false,
@@ -733,7 +775,7 @@
         }
 
         // ── Clear old history once ─────────────────────────────────────────
-        const _HV = 'rules_v19_bbss';
+        const _HV = 'rules_v19';
         if (localStorage.getItem('tx_history_version') !== _HV) {
             localStorage.removeItem('tx_history_pro');
             localStorage.setItem('tx_history_version', _HV);
@@ -778,73 +820,77 @@
                 }
             });
 
-            // Always compute fresh prediction — latest 7 results se
-            const recentNums = list.slice(0, Math.min(list.length, 7)).map(i => parseInt(i.number));
+            // Fresh prediction from latest 7 results
+            const recentNums = list.slice(0, 7).map(i => parseInt(i.number));
             if (recentNums.length >= 4) {
                 const seq = recentNums.map(n => n >= 5 ? 'BIG' : 'SMALL');
-
                 if (nextIssue !== lockedPeriod) {
-                    // New period — compute & lock prediction
                     const pred = dragonScoreEngine(seq);
                     if (pred) {
                         lockedPeriod = nextIssue;
                         lockedPred   = pred;
-                        // Only add to history if pattern found (not WAIT)
                         if (!pred.isWait && !gameHistory.find(i => i.issue === nextIssue)) {
                             gameHistory.unshift({ issue: nextIssue, display: nextIssue.slice(-5), predictionType: 'SIZE', predictedSize: pred.prediction, status: 'PENDING', actual: null, actualSize: null, timestamp: Date.now(), confidence: pred.confidence, sizeEdge: pred.scoreDiff, bigProb: pred.bigProb, smallProb: pred.smallProb });
                             updated = true;
                         }
-                        updateDisplay(pred, seq, recentNums);
+                        updateDisplay(pred, seq);
                     }
                 } else if (lockedPred) {
-                    // Same period — show locked prediction, don't change
-                    updateDisplay(lockedPred, seq, recentNums);
+                    updateDisplay(lockedPred, seq);
                 }
             }
             if (updated) saveAndRefresh();
-            updateRecentNumbers(list.slice(0, 5));
+            updateRecentNumbers(list.slice(0, 7));
         }
 
-        function updateDisplay(predictionResult, seq, nums) {
-            const predEl = document.getElementById('displayPrediction');
-
-            // ── WAIT STATE: no pattern found ──
+        function updateDisplay(predictionResult, seq) {
+            // ── WAIT: no pattern found ──
             if (predictionResult.isWait) {
+                const predEl = document.getElementById('displayPrediction');
                 predEl.innerText = '⏳ WAIT';
-                predEl.className = 'text-2xl font-bold text-yellow-500';
-
+                predEl.className = 'text-2xl font-bold text-yellow-400';
                 document.getElementById('bigProbabilityValue').innerText  = '--';
                 document.getElementById('bigProbabilityBar').style.width  = '50%';
                 document.getElementById('smallProbabilityValue').innerText = '--';
                 document.getElementById('smallProbabilityBar').style.width = '50%';
                 document.getElementById('sizeEdgeValue').innerHTML   = '-- pts';
                 document.getElementById('sizePreference').innerHTML  = '🕐 Waiting for pattern...';
-                document.getElementById('activePredictionType').innerHTML = 'SIZE: <span class="text-purple-900">WAIT</span> (no pattern)';
+                document.getElementById('activePredictionType').innerHTML = 'SIZE: <span class="text-purple-900">WAIT</span>';
                 document.getElementById('recommendedPrediction').innerText = '⏳ WAIT';
                 document.getElementById('recommendedConfidenceValue').innerText = '--';
                 document.getElementById('patternStrengthLabel').innerText = 'NONE';
                 document.getElementById('methodInfo').innerHTML =
-                    `<span class="method-indicator bg-gradient-to-r from-yellow-500 to-orange-400 text-white text-xs px-2 py-1 rounded-lg mr-1 mb-1 inline-block">⏳ No Pattern — Skip this round</span>`;
+                    `<span class="method-indicator bg-gradient-to-r from-yellow-500 to-orange-400 text-white text-xs px-2 py-1 rounded-lg mr-1 mb-1 inline-block">⏳ No Pattern Detected — Skip Round</span>`;
 
-                // Trend summary even when waiting
+                // Trend even on WAIT
                 const last7 = seq.slice(0, 7);
                 const bC = last7.filter(v => v === 'BIG').length;
                 const sC = last7.length - bC;
-                const nLast = nums ? nums.slice(0, 7) : [];
-                document.getElementById('trendSummary').innerHTML = buildTrendHTML(seq, nums, bC, sC, null);
-
+                let streak = 1;
+                for (let i = 1; i < last7.length; i++) { if (last7[i] === last7[0]) streak++; else break; }
+                const trendLabel = bC > sC ? '📈 BIG Trending' : bC < sC ? '📉 SMALL Trending' : '↔️ Balanced';
+                const last3bigs = last7.slice(0, 3).filter(v => v === 'BIG').length;
+                const momentum  = last3bigs >= 2 ? '🔥 BIG Momentum' : '🐉 SMALL Momentum';
+                document.getElementById('trendSummary').innerHTML = `
+                    <div class="p-2 rounded-lg text-xs font-bold border bg-yellow-50 border-yellow-200 text-yellow-700 flex flex-col gap-1">
+                        <div>⏳ No Pattern — Skip this round</div>
+                        <div class="flex gap-2 mt-1 flex-wrap">
+                            <span class="px-2 py-0.5 rounded-full bg-white border border-yellow-200">${trendLabel}</span>
+                            <span class="px-2 py-0.5 rounded-full bg-white border border-yellow-200">${momentum}</span>
+                        </div>
+                    </div>`;
                 document.getElementById('modelPerformance').innerHTML = `
                     <div class="flex justify-between items-center p-2 bg-yellow-50 rounded-lg"><span class="text-xs font-bold">Status</span><span class="text-xs font-bold text-yellow-600">⏳ Waiting for Pattern</span></div>`;
                 return;
             }
 
             // ── NORMAL PREDICTION ──
-            const confColor = predictionResult.confidence >= 80 ? 'text-green-500' : predictionResult.confidence >= 70 ? 'text-yellow-500' : 'text-blue-400';
+            const confColor = predictionResult.confidence >= 80 ? 'text-green-500' : predictionResult.confidence >= 68 ? 'text-yellow-500' : 'text-red-400';
+            const numRange  = predictionResult.prediction === 'BIG' ? ' (5-9)' : ' (0-4)';
 
-            // Number range alongside BIG/SMALL
-            const numRange  = predictionResult.prediction === 'BIG' ? '(5-9)' : '(0-4)';
-            predEl.innerText = `${predictionResult.prediction} ${numRange}`;
-            predEl.className = `text-xl font-bold ${confColor}`;
+            const predEl = document.getElementById('displayPrediction');
+            predEl.innerText = predictionResult.prediction + numRange;
+            predEl.className = `text-2xl font-bold ${confColor}`;
 
             document.getElementById('bigProbabilityValue').innerText  = `${predictionResult.bigProb}%`;
             document.getElementById('bigProbabilityBar').style.width  = `${predictionResult.bigProb}%`;
@@ -853,26 +899,35 @@
 
             document.getElementById('sizeEdgeValue').innerHTML   = `${predictionResult.scoreDiff} pts`;
             document.getElementById('sizePreference').innerHTML  = predictionResult.prediction === 'BIG' ? '🔥 Engine leans BIG (5-9)' : '🐉 Engine leans SMALL (0-4)';
-            document.getElementById('activePredictionType').innerHTML = `SIZE: <span class="text-purple-900">${predictionResult.prediction} ${numRange}</span> (${predictionResult.confidence}% conf)`;
-            document.getElementById('recommendedPrediction').innerText     = `${predictionResult.prediction} ${numRange}`;
+            document.getElementById('activePredictionType').innerHTML = `SIZE: <span class="text-purple-900">${predictionResult.prediction}${numRange}</span> (${predictionResult.confidence}% conf)`;
+            document.getElementById('recommendedPrediction').innerText     = predictionResult.prediction + numRange;
             document.getElementById('recommendedConfidenceValue').innerText = `${predictionResult.confidence}%`;
 
             const scoreDiff = predictionResult.scoreDiff;
             document.getElementById('patternStrengthLabel').innerText = scoreDiff > 6 ? 'HIGH' : scoreDiff > 3 ? 'MEDIUM' : 'LOW';
 
-            // Pattern tags
             const matched = predictionResult.patterns?.matched || [];
             const patternHTML = matched.map(p =>
                 `<span class="method-indicator bg-gradient-to-r from-purple-700 to-indigo-600 text-white text-xs px-2 py-1 rounded-lg mr-1 mb-1 inline-block">${p}</span>`
             ).join('');
-            document.getElementById('methodInfo').innerHTML = patternHTML ||
-                `<span class="text-xs text-gray-400">No pattern tags</span>`;
+            document.getElementById('methodInfo').innerHTML = patternHTML || `<span class="text-xs text-gray-400">No pattern tags</span>`;
 
             // Trend summary
-            const last7 = seq.slice(0, 7);
-            const bC = last7.filter(v => v === 'BIG').length;
-            const sC = last7.length - bC;
-            document.getElementById('trendSummary').innerHTML = buildTrendHTML(seq, nums, bC, sC, predictionResult);
+            const p = predictionResult.patterns;
+            const bC = p?.bigC ?? 0, sC = p?.smlC ?? 0;
+            const streak = p?.streak ?? 1;
+            const trendLabel = p?.trendLabel ?? '';
+            const momentum   = p?.momentum ?? '';
+            document.getElementById('trendSummary').innerHTML = `
+                <div class="p-2 rounded-lg text-xs font-bold border bg-green-50 border-green-200 text-green-600 flex flex-col gap-1">
+                    <div class="flex items-center gap-2">✅ Pattern Matched
+                        <span class="ml-auto font-bold ${predictionResult.prediction === 'BIG' ? 'text-blue-600' : 'text-purple-600'}">Next: ${predictionResult.prediction}${numRange}</span>
+                    </div>
+                    <div class="flex gap-2 mt-1 flex-wrap">
+                        <span class="px-2 py-0.5 rounded-full bg-white border border-green-200">${trendLabel}</span>
+                        <span class="px-2 py-0.5 rounded-full bg-white border border-green-200">${momentum}</span>
+                    </div>
+                </div>`;
 
             document.getElementById('modelPerformance').innerHTML = `
                 <div class="flex justify-between items-center p-2 bg-gray-50 rounded-lg"><span class="text-xs font-bold">BIG Accuracy</span><span class="text-xs font-bold text-green-600">${getAccuracy('BIG')}%</span></div>
@@ -887,61 +942,6 @@
                 <div class="bg-indigo-50 p-3 rounded-lg"><p class="text-xs text-indigo-600 font-bold">Confidence</p><p class="text-xl font-bold text-indigo-700">${predictionResult.confidence}%</p></div>
                 <div class="bg-amber-50 p-3 rounded-lg"><p class="text-xs text-amber-600 font-bold">BIG (5-9)</p><p class="text-xl font-bold text-amber-700">${predictionResult.bigProb}%</p></div>
                 <div class="bg-cyan-50 p-3 rounded-lg"><p class="text-xs text-cyan-600 font-bold">SMALL (0-4)</p><p class="text-xl font-bold text-cyan-700">${predictionResult.smallProb}%</p></div>`;
-        }
-
-        function buildTrendHTML(seq, nums, bC, sC, pred) {
-            const last7 = seq ? seq.slice(0, 7) : [];
-            const nLast = nums ? nums.slice(0, 7) : [];
-
-            // Current streak
-            let streak = 1;
-            for (let i = 1; i < last7.length; i++) { if (last7[i] === last7[0]) streak++; else break; }
-            const streakSide = last7[0] || '--';
-
-            // Momentum: last 3
-            const last3 = last7.slice(0, 3);
-            const bigs3 = last3.filter(v => v === 'BIG').length;
-            const momentum = bigs3 >= 2 ? '🔥 BIG Momentum' : bigs3 <= 1 ? '🐉 SMALL Momentum' : '↔️ Balanced';
-
-            // Number sequence display
-            const numSeqHTML = nLast.map((n, i) => {
-                const isBig = n >= 5;
-                const bg = isBig ? 'bg-blue-500' : 'bg-purple-500';
-                const label = isBig ? 'B' : 'S';
-                return `<div class="flex flex-col items-center gap-0.5">
-                    <span class="w-7 h-7 flex items-center justify-center rounded-full text-xs font-bold text-white ${bg}">${n}</span>
-                    <span class="text-[9px] font-bold ${isBig ? 'text-blue-600' : 'text-purple-600'}">${label}</span>
-                </div>`;
-            }).join('');
-
-            const trendLabel = bC > sC ? '📈 BIG Trending' : bC < sC ? '📉 SMALL Trending' : '↔️ Balanced';
-            const predBadge  = pred ? `<span class="ml-auto font-bold text-xs px-2 py-0.5 rounded-full ${pred.prediction === 'BIG' ? 'bg-blue-100 text-blue-700' : 'bg-purple-100 text-purple-700'}">Next: ${pred.prediction} ${pred.prediction === 'BIG' ? '(5-9)' : '(0-4)'}</span>` : '';
-
-            return `
-                <div class="space-y-2">
-                    <div class="p-2 rounded-lg bg-gradient-to-r from-slate-50 to-white border border-slate-200 text-xs">
-                        <div class="flex items-center gap-1 mb-2 font-bold text-slate-600">🔢 Last 7 Numbers ${predBadge}</div>
-                        <div class="flex gap-1 flex-wrap">${numSeqHTML}</div>
-                    </div>
-                    <div class="grid grid-cols-3 gap-2 text-xs">
-                        <div class="p-2 rounded-lg bg-blue-50 border border-blue-100 text-center">
-                            <div class="font-bold text-blue-700 text-base">${bC}</div>
-                            <div class="text-blue-500">BIG</div>
-                        </div>
-                        <div class="p-2 rounded-lg bg-purple-50 border border-purple-100 text-center">
-                            <div class="font-bold text-purple-700 text-base">${sC}</div>
-                            <div class="text-purple-500">SMALL</div>
-                        </div>
-                        <div class="p-2 rounded-lg bg-amber-50 border border-amber-100 text-center">
-                            <div class="font-bold text-amber-700 text-base">${streak}x</div>
-                            <div class="text-amber-500">${streakSide}</div>
-                        </div>
-                    </div>
-                    <div class="flex gap-2">
-                        <span class="text-xs px-2 py-1 rounded-full bg-slate-100 text-slate-600 font-bold">${trendLabel}</span>
-                        <span class="text-xs px-2 py-1 rounded-full bg-slate-100 text-slate-600 font-bold">${momentum}</span>
-                    </div>
-                </div>`;
         }
 
         function updateRecentNumbers(items) {
