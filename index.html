@@ -630,10 +630,18 @@
             }
         });
 
-        // ==================== PREDICTION ENGINE v14.0 — High Accuracy ====================
-        const RULE1 = ['BIG','SMALL','SMALL','BIG','SMALL','BIG'];
-        const RULE2 = ['BIG','BIG','SMALL','SMALL'];
+        // ==================== PREDICTION ENGINE v15.0 — 6 Rules Only ====================
+        // Rule 1: B S B S B S  (alternating, starting B)
+        const RULE1 = ['BIG','SMALL','BIG','SMALL','BIG','SMALL'];
+        // Rule 2: B B S S B B S S  (pair cycle) + reverse S S B B S S B B
+        const RULE2A = ['BIG','BIG','SMALL','SMALL'];
+        const RULE2B = ['SMALL','SMALL','BIG','BIG'];
+        // Rule 5: B B S B B S
+        const RULE5 = ['BIG','BIG','SMALL','BIG','BIG','SMALL'];
+        // Rule 6: B S S B B S
+        const RULE6 = ['BIG','SMALL','SMALL','BIG','BIG','SMALL'];
 
+        // Match a cycle pattern (oldest-first input)
         function matchCycle(seqOldFirst, pattern, minLen) {
             const pLen = pattern.length, n = seqOldFirst.length;
             if (n < minLen) return null;
@@ -647,25 +655,11 @@
             return null;
         }
 
-        function getStreak(seq) {
-            let len = 1;
-            while (len < seq.length && seq[len] === seq[0]) len++;
-            return { val: seq[0], len };
-        }
-
-        function isAlternating(seq) {
-            const s = seq.slice(0, 6);
-            let alt = true;
-            for (let i = 1; i < s.length; i++) { if (s[i] === s[i-1]) { alt = false; break; } }
-            return s.length >= 4 && alt;
-        }
-
-        // Count consecutive losses from history to apply anti-loss correction
-        function getRecentLossStreak() {
-            const recent = gameHistory.filter(i => i.status !== 'PENDING').slice(0, 5);
-            let losses = 0;
-            for (const r of recent) { if (r.status === 'LOSS') losses++; else break; }
-            return losses;
+        // Count leading streak of a value (seq is newest-first)
+        function getStreakLen(seq, val) {
+            let c = 0;
+            for (const v of seq) { if (v === val) c++; else break; }
+            return c;
         }
 
         function dragonScoreEngine(seq) {
@@ -675,97 +669,78 @@
             const patterns = {};
             const votes = { BIG: 0, SMALL: 0 };
             let signalCount = 0;
+            let activeRule = null;
 
-            // ── Signal 1: Streak reversal (weighted by streak length) ──
-            const stk = getStreak(seq);
-            patterns.streak = stk;
-            if (stk.len >= 6)      { const r = stk.val==='BIG'?'SMALL':'BIG'; votes[r] += 8; signalCount++; }
-            else if (stk.len === 5){ const r = stk.val==='BIG'?'SMALL':'BIG'; votes[r] += 7; signalCount++; }
-            else if (stk.len === 4){ const r = stk.val==='BIG'?'SMALL':'BIG'; votes[r] += 6; signalCount++; }
-            else if (stk.len === 3){ const r = stk.val==='BIG'?'SMALL':'BIG'; votes[r] += 4; signalCount++; }
-            else if (stk.len === 2){ const r = stk.val==='BIG'?'SMALL':'BIG'; votes[r] += 1; signalCount++; }
-
-            // ── Signal 2: Rule 1 cycle match (min 4) ──
+            // ── RULE 1: BSBSBS cycle (min 4 match) ──
             let r1 = null;
             for (let w = Math.min(len, 6); w >= 4; w--) {
                 r1 = matchCycle(of.slice(len - w), RULE1, 4);
                 if (r1) break;
             }
-            if (r1) { votes[r1.next] += 4; signalCount++; patterns.rule1 = r1; }
+            if (r1) { votes[r1.next] += 5; signalCount++; patterns.rule1 = r1; activeRule = 'RULE1'; }
 
-            // ── Signal 3: Rule 2 pair cycle (BBSS) ──
-            const r2 = len >= 4 ? matchCycle(of.slice(len - 4), RULE2, 4) : null;
-            if (r2) { votes[r2.next] += 4; signalCount++; patterns.rule2 = r2; }
+            // ── RULE 2: BBSSBBSS or reverse SSBBSSBB cycle (min 4 match) ──
+            let r2 = null;
+            for (let w = Math.min(len, 8); w >= 4; w--) {
+                r2 = matchCycle(of.slice(len - w), RULE2A, 4);
+                if (r2) break;
+                r2 = matchCycle(of.slice(len - w), RULE2B, 4);
+                if (r2) break;
+            }
+            if (r2) { votes[r2.next] += 5; signalCount++; patterns.rule2 = r2; if (!activeRule) activeRule = 'RULE2'; }
 
-            // ── Signal 4: Alternating pattern (BSBSBS) → continue alternating ──
-            if (isAlternating(seq)) {
-                const next = seq[0] === 'BIG' ? 'SMALL' : 'BIG';
-                votes[next] += 5; signalCount++;
-                patterns.alt = true;
+            // ── RULE 3: 6 consecutive SMALL → BIG (active only if 3+ SMALL streak exists) ──
+            const smallStreak = getStreakLen(seq, 'SMALL');
+            if (smallStreak >= 3) {
+                // Rule 3 active — predict BIG (reversal)
+                votes['BIG'] += (smallStreak >= 6 ? 8 : smallStreak >= 5 ? 6 : 4);
+                signalCount++;
+                patterns.rule3 = { streakLen: smallStreak };
+                if (!activeRule) activeRule = 'RULE3';
             }
 
-            // ── Signal 5: Pair switch (AABB → after 2nd, switch) ──
-            if (seq.length >= 3 && seq[0] === seq[1] && seq[1] !== seq[2]) {
-                votes[seq[2]] += 3; signalCount++;
-                patterns.pair = true;
+            // ── RULE 4: 5 consecutive BIG → SMALL (active only if 3+ BIG streak exists) ──
+            const bigStreak = getStreakLen(seq, 'BIG');
+            if (bigStreak >= 3) {
+                // Rule 4 active — predict SMALL (reversal)
+                votes['SMALL'] += (bigStreak >= 5 ? 8 : bigStreak >= 4 ? 6 : 4);
+                signalCount++;
+                patterns.rule4 = { streakLen: bigStreak };
+                if (!activeRule) activeRule = 'RULE4';
             }
 
-            // ── RULE 4: 4+ consecutive BIG → strong SMALL reversal ──
-            const bigStreakLen = (() => { let c = 0; for (const v of seq) { if (v === 'BIG') c++; else break; } return c; })();
-            if (bigStreakLen >= 4) {
-                votes['SMALL'] += 7; signalCount++;
-                patterns.rule4 = { streakLen: bigStreakLen };
+            // ── RULE 5: BBSBBS cycle (min 4 match) ──
+            let r5 = null;
+            for (let w = Math.min(len, 6); w >= 4; w--) {
+                r5 = matchCycle(of.slice(len - w), RULE5, 4);
+                if (r5) break;
             }
+            if (r5) { votes[r5.next] += 5; signalCount++; patterns.rule5 = r5; if (!activeRule) activeRule = 'RULE5'; }
 
-            // ── RULE 5: 4+ consecutive SMALL → strong BIG reversal ──
-            const smallStreakLen = (() => { let c = 0; for (const v of seq) { if (v === 'SMALL') c++; else break; } return c; })();
-            if (smallStreakLen >= 4) {
-                votes['BIG'] += 7; signalCount++;
-                patterns.rule5 = { streakLen: smallStreakLen };
+            // ── RULE 6: BSSBBS cycle (min 4 match) ──
+            let r6 = null;
+            for (let w = Math.min(len, 6); w >= 4; w--) {
+                r6 = matchCycle(of.slice(len - w), RULE6, 4);
+                if (r6) break;
             }
+            if (r6) { votes[r6.next] += 5; signalCount++; patterns.rule6 = r6; if (!activeRule) activeRule = 'RULE6'; }
 
-            // ── Signal 6: Last 8 frequency bias ──
-            const last8 = seq.slice(0, 8);
-            const bigCount8  = last8.filter(s => s === 'BIG').length;
-            const smCount8   = last8.length - bigCount8;
-            if (bigCount8 >= 6)      { votes['SMALL'] += 3; signalCount++; }
-            else if (smCount8 >= 6)  { votes['BIG']   += 3; signalCount++; }
-            else if (bigCount8 >= 5) { votes['SMALL'] += 1; }
-            else if (smCount8 >= 5)  { votes['BIG']   += 1; }
-
-            // ── Signal 7: Anti-consecutive-loss correction ──
-            // If last 2+ predictions were wrong, boost opposite of current weak leader
-            const lossStrk = getRecentLossStreak();
-            if (lossStrk >= 2) {
-                // Find what we've been predicting wrong — boost opposite strongly
-                const recentPreds = gameHistory.filter(i => i.status === 'LOSS').slice(0, lossStrk);
-                if (recentPreds.length >= 2) {
-                    const wrongPred = recentPreds[0].predictedSize;
-                    const correction = wrongPred === 'BIG' ? 'SMALL' : 'BIG';
-                    const boost = lossStrk >= 3 ? 5 : 3;
-                    votes[correction] += boost;
-                    signalCount++;
-                    patterns.antiLoss = { lossStrk, correction };
-                }
-            }
-
-            // ── Fallback: no signals ──
+            // ── Fallback: no rule matched — opposite of last result ──
             if (signalCount === 0) {
-                // Slight bias toward opposite of last result
                 votes[seq[0] === 'BIG' ? 'SMALL' : 'BIG'] += 1;
+                activeRule = 'NONE';
             }
 
             const totalVotes = votes.BIG + votes.SMALL || 1;
             const prediction = votes.BIG >= votes.SMALL ? 'BIG' : 'SMALL';
             const dominance  = Math.max(votes.BIG, votes.SMALL) / totalVotes;
-            // Confidence: more conservative — avoids overconfident wrong calls
-            const rawConf    = Math.round(50 + dominance * 40 + Math.min(signalCount, 5) * 1.5);
+            const rawConf    = Math.round(50 + dominance * 40 + Math.min(signalCount, 5) * 2);
             const confidence = Math.min(88, Math.max(55, rawConf));
             const bigProb    = Math.round((votes.BIG / totalVotes) * 100);
 
             patterns.dominantTrend = prediction;
             patterns.trendStrength = confidence / 100;
-            patterns.source        = r1 ? 'RULE1' : r2 ? 'RULE2' : patterns.rule4 ? 'RULE4' : patterns.rule5 ? 'RULE5' : stk.len >= 3 ? 'STREAK' : isAlternating(seq) ? 'ALT' : 'MULTI';
+            patterns.source        = activeRule || 'MULTI';
 
             return {
                 prediction, confidence,
@@ -778,7 +753,7 @@
         }
 
         // ── Clear old history once ─────────────────────────────────────────
-        const _HV = 'rules_v12';
+        const _HV = 'rules_v15';
         if (localStorage.getItem('tx_history_version') !== _HV) {
             localStorage.removeItem('tx_history_pro');
             localStorage.setItem('tx_history_version', _HV);
@@ -865,13 +840,12 @@
             document.getElementById('patternStrengthLabel').innerText = patternStrengthVal;
             const patterns = predictionResult.patterns;
             const patternList = [];
-            if (patterns.rule1 && patterns.rule1.matchLen >= 4) patternList.push(`🎯 Pattern Match (${patterns.rule1.matchLen}/6)`);
-            if (patterns.rule2 && patterns.rule2.matchLen >= 4) patternList.push(`🔢 Pair Cycle (${patterns.rule2.matchLen}/4)`);
-            if (patterns.streak && patterns.streak.len >= 2) patternList.push(`🔥 ${patterns.streak.len}x ${patterns.streak.val}${patterns.streak.len >= 4 ? ' → FLIP' : ''}`);
+            if (patterns.rule1) patternList.push(`🎯 Rule 1: BSBSBS (${patterns.rule1.matchLen}/6)`);
+            if (patterns.rule2) patternList.push(`🔢 Rule 2: BBSS Cycle (${patterns.rule2.matchLen}/8)`);
+            if (patterns.rule3) patternList.push(`🔵 Rule 3: ${patterns.rule3.streakLen}x SMALL → BIG Expected`);
             if (patterns.rule4) patternList.push(`🔴 Rule 4: ${patterns.rule4.streakLen}x BIG → SMALL Expected`);
-            if (patterns.rule5) patternList.push(`🔵 Rule 5: ${patterns.rule5.streakLen}x SMALL → BIG Expected`);
-            if (patterns.source === 'ALT')  patternList.push(`⚡ Alternating Detected`);
-            if (patterns.source === 'PAIR') patternList.push(`🔄 Pair Switch`);
+            if (patterns.rule5) patternList.push(`⚡ Rule 5: BBSBBS (${patterns.rule5.matchLen}/6)`);
+            if (patterns.rule6) patternList.push(`🔄 Rule 6: BSSBBS (${patterns.rule6.matchLen}/6)`);
             if (patterns.dominantTrend) patternList.push(`📈 Trend: ${patterns.dominantTrend} (${Math.round(patterns.trendStrength*100)}%)`);
             document.getElementById('methodInfo').innerHTML = patternList.map(p => `<span class="method-indicator bg-gradient-to-r from-purple-700 to-indigo-600 text-white text-xs">${p}</span>`).join('');
             document.getElementById('trendSummary').innerHTML = `<div class="bg-gradient-to-r from-purple-50 to-blue-50 p-2 rounded-lg text-xs font-bold" style="color:#000000;">🔥 Dragon Score: BIG ${predictionResult.scores.BIG} | SMALL ${predictionResult.scores.SMALL} • Edge ${predictionResult.scoreDiff} pts</div>`;
