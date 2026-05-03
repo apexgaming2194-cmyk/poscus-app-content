@@ -677,7 +677,7 @@
 
             // ── RULE 2: BBSS / SSBB pair cycle ──
             let r2 = null, r2v = '';
-            for (let w = Math.min(len, 8); w >= 4; w--) {
+            for (let w = Math.min(len, 7); w >= 4; w--) {
                 r2 = matchCycle(of.slice(len - w), RULE2A, 4);
                 if (r2) { r2v = 'BBSS'; break; }
                 r2 = matchCycle(of.slice(len - w), RULE2B, 4);
@@ -767,7 +767,7 @@
         }
 
         // ── Clear old history once ─────────────────────────────────────────
-        const _HV = 'rules_v17';
+        const _HV = 'rules_v18';
         if (localStorage.getItem('tx_history_version') !== _HV) {
             localStorage.removeItem('tx_history_pro');
             localStorage.setItem('tx_history_version', _HV);
@@ -812,8 +812,8 @@
                 }
             });
 
-            // Always compute fresh prediction for current period
-            const recentNums = list.slice(0, Math.min(list.length, 10)).map(i => parseInt(i.number));
+            // Always compute fresh prediction — sirf latest 7 results se
+            const recentNums = list.slice(0, Math.min(list.length, 7)).map(i => parseInt(i.number));
             if (recentNums.length >= 3) {
                 const seq = recentNums.map(n => n >= 5 ? 'BIG' : 'SMALL');
 
